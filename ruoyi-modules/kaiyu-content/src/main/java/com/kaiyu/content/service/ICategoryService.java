@@ -1,6 +1,8 @@
 package com.kaiyu.content.service;
 
 import com.kaiyu.content.domain.Category;
+import com.kaiyu.content.domain.PageParams;
+import com.kaiyu.content.domain.PageResult;
 
 import java.util.List;
 
@@ -16,6 +18,6 @@ public interface ICategoryService {
      */
     List<Category> getCategory();
 
-    List<Category> getBackCategory();
+    PageResult<Category> getBackCategory(PageParams pageParams);
 
 }

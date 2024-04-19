@@ -2,6 +2,8 @@ package com.kaiyu.content.controller;
 
 import com.kaiyu.content.domain.Category;
 import com.kaiyu.content.domain.Course;
+import com.kaiyu.content.domain.PageParams;
+import com.kaiyu.content.domain.PageResult;
 import com.kaiyu.content.service.ICategoryService;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.web.controller.BaseController;
@@ -50,9 +52,19 @@ public class CategoryController{
     @GetMapping("/back/getBackCategory")
     @RequiresRoles(value = {"admin"}, logical = Logical.OR)
     @ApiOperation("后台管理-查询课程分类列表")
-    public R<List<Category>> getBackCategory(){
+    public PageResult<Category> getBackCategory(@RequestParam(value = "pageNo", defaultValue = "1") Long pageNo,
+                                                @RequestParam(value = "pageSize", defaultValue = "10") Long pageSize){
 
-        return R.ok(categoryService.getBackCategory());
+        PageParams pageParams = new PageParams();
+
+        if (pageNo >= 1) {
+            pageParams.setPageNo(pageNo);
+        }
+        if (pageSize >= 1) {
+            pageParams.setPageSize(pageSize);
+        }
+
+        return categoryService.getBackCategory(pageParams);
 
     }
 

@@ -3,7 +3,10 @@ package com.kaiyu.content.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kaiyu.content.domain.Category;
+import com.kaiyu.content.domain.PageParams;
+import com.kaiyu.content.domain.PageResult;
 import com.kaiyu.content.mapper.CategoryMapper;
 import com.kaiyu.content.service.ICategoryService;
 import com.ruoyi.common.core.utils.StringUtils;
@@ -53,12 +56,20 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<Category> getBackCategory() {
+    public PageResult<Category> getBackCategory(PageParams pageParams) {
         LambdaQueryWrapper<Category> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.groupBy(Category::getId);
-        List<Category> categoryList = categoryMapper.selectList(queryWrapper);
+//        List<Category> categoryList = categoryMapper.selectList(queryWrapper);
 
-        return categoryList;
+        Page<Category> page = new Page<>(pageParams.getPageNo(),pageParams.getPageSize());
+
+        Page<Category> categoryPage = categoryMapper.selectPage(page, queryWrapper);
+        List<Category> records = categoryPage.getRecords();
+        long total = categoryPage.getTotal();
+
+        PageResult<Category> categoryPageResult = new PageResult<>(records, total, pageParams.getPageNo(), pageParams.getPageSize());
+
+        return categoryPageResult;
     }
 
 
