@@ -1,5 +1,8 @@
 package com.kaiyu.learning.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.kaiyu.learning.config.MqttProviderConfig;
+import com.kaiyu.learning.domain.Device;
 import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.domain.TeachplanMedia;
 import com.kaiyu.learning.domain.dto.TeachplanDto;
@@ -11,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @program: kai-yu-cloud
@@ -30,6 +32,9 @@ public class LearningServiceImpl implements LearningService {
     @Autowired
 //    @Qualifier("")
     RemoteMediaService remoteMediaService;
+
+    @Autowired
+    private MqttProviderConfig providerClient;
 
     @Override
     public RestResponse<Object> getVideo(Long courseId, String mediaId) {
@@ -75,11 +80,40 @@ public class LearningServiceImpl implements LearningService {
 
     @Override
     public RestResponse<Object> videoAutoPushActionToDevice(String operate, String sceneid) {
-        if (operate == null ||   sceneid == null) {
+        if (operate == null || sceneid == null) {
             return RestResponse.validfail("参数不合法");
         }
-        return RestResponse.success();
 
+        List<LinkedHashMap<String, String>> result = (List<LinkedHashMap<String, String>>) remoteContentService.getDeviceListBySceneid(sceneid).getResult();
+
+        if (result == null || result.size() == 0) {
+            return RestResponse.validfail("设备不存在");
+        }
+
+
+        result.forEach(device -> {
+            Map<String, Object> pushJson = new HashMap<>();
+            pushJson.put("type", "3");
+            pushJson.put("deviceid", device.get("deviceid"));
+            pushJson.put("fromuser", "");
+
+            Map<String, Object> message = new HashMap<>();
+            message.put("operate", operate);
+            pushJson.put("message", message);
+
+            //发送消息
+            providerClient.publish(1,true,device.get("topic"), JSON.toJSONString(pushJson));
+
+        });
+
+        //没有ack机制暂时这样
+        Map<String, Integer> send_result = new HashMap<>();
+        send_result.put("success_send", result.size());
+        send_result.put("errc_send", 0);
+        send_result.put("send_devices_count", result.size());
+
+
+        return RestResponse.success(send_result);
     }
 
 

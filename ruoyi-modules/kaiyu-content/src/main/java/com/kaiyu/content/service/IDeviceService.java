@@ -12,5 +12,6 @@ import java.util.List;
  **/
 public interface IDeviceService {
 
+    List<Device> getDeviceListBySceneid(String sceneid);
 
 }

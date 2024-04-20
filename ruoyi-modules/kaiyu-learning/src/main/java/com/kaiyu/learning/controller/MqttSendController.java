@@ -9,6 +9,7 @@ import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -45,16 +46,14 @@ public class MqttSendController {
         return RestResponse.success();
     }
 
-//    @PostMapping("/pushAction")
-//    @ApiOperation("web端对场景下设备进行运行控制")
-//    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
-    public RestResponse<Object> videoAutoPushActionToDevice(@RequestParam("operate")String operate,@RequestParam("sceneid")String sceneid){
+    @PostMapping("/pushAction")
+    @ApiOperation("web端对场景下设备进行运行控制")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public RestResponse<Object> videoAutoPushActionToDevice(@ApiParam("操作类型 1:开始 2:暂停 3:停止")@RequestParam("operate")String operate,
+                                                            @RequestParam("sceneid")String sceneid){
 
         return  learningService.videoAutoPushActionToDevice(operate,sceneid);
     }
-
-
-
 
 
 

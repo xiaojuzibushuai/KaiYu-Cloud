@@ -3,6 +3,8 @@ package com.kaiyu.content.service;
 import com.kaiyu.content.domain.Category;
 import com.kaiyu.content.domain.PageParams;
 import com.kaiyu.content.domain.PageResult;
+import com.kaiyu.content.domain.RestResponse;
+import com.kaiyu.content.domain.dto.EditCategoryDto;
 
 import java.util.List;
 
@@ -19,5 +21,10 @@ public interface ICategoryService {
     List<Category> getCategory();
 
     PageResult<Category> getBackCategory(PageParams pageParams);
+
+    RestResponse saveBackCategory(EditCategoryDto categoryDto);
+
+    RestResponse deleteBackCategory(Long categoryId);
+
 
 }

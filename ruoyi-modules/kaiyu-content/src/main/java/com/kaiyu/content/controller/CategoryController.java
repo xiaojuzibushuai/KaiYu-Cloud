@@ -1,9 +1,7 @@
 package com.kaiyu.content.controller;
 
-import com.kaiyu.content.domain.Category;
-import com.kaiyu.content.domain.Course;
-import com.kaiyu.content.domain.PageParams;
-import com.kaiyu.content.domain.PageResult;
+import com.kaiyu.content.domain.*;
+import com.kaiyu.content.domain.dto.EditCategoryDto;
 import com.kaiyu.content.service.ICategoryService;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.web.controller.BaseController;
@@ -11,11 +9,9 @@ import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -67,5 +63,30 @@ public class CategoryController{
         return categoryService.getBackCategory(pageParams);
 
     }
+
+
+    @PostMapping("/back/saveBackCategory")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @ApiOperation("后台管理-新增或保存课程分类列表")
+    public RestResponse saveBackCategory(@RequestBody EditCategoryDto categoryDto){
+        if (StringUtils.isEmpty(categoryDto.getTitle()) || StringUtils.isBlank(categoryDto.getTitle())){
+            return RestResponse.validfail("课程分类标题不能为空");
+        }
+
+        return categoryService.saveBackCategory(categoryDto);
+    }
+
+
+    @DeleteMapping("/back/deleteBackCategory")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @ApiOperation("后台管理-删除课程分类列表")
+    public RestResponse deleteBackCategory(@RequestParam(value = "categoryId", required = true) Long categoryId){
+        if (categoryId < 0) {
+            return RestResponse.validfail("课程分类id不合法");
+        }
+
+        return categoryService.deleteBackCategory(categoryId);
+    }
+
 
 }

@@ -13,6 +13,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.core.annotation.Excel;
 import com.ruoyi.common.core.web.domain.BaseEntity;
 
+import javax.validation.constraints.NotBlank;
+
 /**
  * 【请填写功能名称】对象 category
  * @author xiaojuzi
@@ -29,6 +31,7 @@ public class Category implements Serializable
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @NotBlank(message = "课程分类标题不能为空")
     private String title;
 
     /** $column.columnComment */

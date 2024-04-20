@@ -21,4 +21,8 @@ public class BindTeachplanMediaDto {
     @ApiModelProperty(value = "课程标识", required = true)
     @NotNull(message = "课程标识不能为空")
     private Long courseId;
+
+    @ApiModelProperty(value = "课程集数", required = true)
+    @NotBlank(message = "课程集数不能为空")
+    private String episode;
 }

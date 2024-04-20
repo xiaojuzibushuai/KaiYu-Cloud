@@ -76,8 +76,9 @@ public class BigFilesController {
     @RequiresRoles(value = {"admin"}, logical = Logical.OR)
     @PostMapping("/upload/mergechunks")
     public RestResponse mergeChunks(@RequestParam("fileMd5") String fileMd5, @RequestParam("fileName") String fileName,
-                                    @ApiParam("文件备注(集数,清晰度)如：5,2") @RequestParam("remark") String remark,
+                                    @ApiParam("文件备注(清晰度)") @RequestParam("remark") String remark,
                                     @RequestParam("chunkTotal") int chunkTotal){
+
         UploadFileParamsDto uploadFileParamsDto = new UploadFileParamsDto();
         uploadFileParamsDto.setFileType("001002");
         uploadFileParamsDto.setTags("课程视频");

@@ -1,9 +1,6 @@
 package com.kaiyu.learning.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,16 +24,21 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.DigestUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @program: kai-yu-cloud
@@ -172,15 +174,15 @@ public class MediaFileServiceImpl implements MediaFileService {
             mediaFiles.setTags(FileTypeUtil.getTagByFileTypeCode(uploadFileParamsDto.getFileType()));
             //设置备注
             mediaFiles.setRemark(uploadFileParamsDto.getRemark());
-            if ("video/mp4".equals(contentType)) {
-                JSONObject data = new JSONObject();
-                String remark = uploadFileParamsDto.getRemark();
-                String episode = remark.split(",")[0];
-                String dpi = remark.split(",")[1];
-                data.put("episode", episode);
-                data.put("dpi", dpi);
-                mediaFiles.setRemark(JSON.toJSONString(data));
-            }
+//            if ("video/mp4".equals(contentType)) {
+//                JSONObject data = new JSONObject();
+//                String remark = uploadFileParamsDto.getRemark();
+//                String episode = remark.split(",")[0];
+//                String dpi = remark.split(",")[1];
+//                data.put("episode", episode);
+//                data.put("dpi", dpi);
+//                mediaFiles.setRemark(JSON.toJSONString(data));
+//            }
 
             //审核状态待设计 xiaojuzi
 //            mediaFiles.setAuditStatus("002003");
@@ -308,6 +310,13 @@ public class MediaFileServiceImpl implements MediaFileService {
         //获取合并文件列表
         OSS ossClient = ossUtils.createOSSClient();
         List<OSSObjectSummary> objects = ossClient.listObjects(video_files, chunkFileFolderPath).getObjectSummaries();
+        //文件排序
+        List<OSSObjectSummary> sortedObjects = objects.stream()
+                .sorted((s1, s2) -> {
+                            Long num1 = extractNumber(s1.getKey());
+                            Long num2 = extractNumber(s2.getKey());
+                            return Long.compare(num1, num2);})
+                .collect(Collectors.toList());
 
         if(objects.size() != chunkTotal) {
             log.debug("分块文件合并失败,分块文件缺失");
@@ -341,7 +350,7 @@ public class MediaFileServiceImpl implements MediaFileService {
             ossFile.deleteOnExit();
 
             try (FileOutputStream fos = new FileOutputStream(ossFile)) {
-                for (OSSObjectSummary summary : objects) {
+                for (OSSObjectSummary summary : sortedObjects) {
                     OSSObject object = ossClient.getObject(video_files, summary.getKey());
                     try (InputStream fileStream = object.getObjectContent()) {
                         byte[] buffer = new byte[1024];
@@ -433,12 +442,26 @@ public class MediaFileServiceImpl implements MediaFileService {
      */
     private String getFileMd5(File file) {
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            String fileMd5 = DigestUtils.md5DigestAsHex(fileInputStream);
+            String fileMd5 = DigestUtils.md5Hex(fileInputStream);
             return fileMd5;
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            log.info("获取文件md5失败,异常:{}",e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * 自定义排序器需要的方法
+     * @param s
+     * @return
+     */
+    private Long extractNumber(String s) {
+        String[] parts = s.split("/");
+        String lastPart = parts[parts.length - 1];
+        String numString = lastPart.trim();
+//        String numString = lastPart.replaceAll("\\D+", "");
+        return Long.parseLong(numString);
     }
 
 

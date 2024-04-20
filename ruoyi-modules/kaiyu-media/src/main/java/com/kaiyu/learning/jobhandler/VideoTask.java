@@ -143,14 +143,14 @@ public class VideoTask {
             //处理下载的视频文件
             String result = "";
             //根据备注来获取处理视频策略 5,2 (集数,清晰度)
-            String remark = mediaProcess.getRemark();
-            String episode = remark.split(",")[0];
-            String dpi = remark.split(",")[1];
+//            String remark = mediaProcess.getRemark();
+//            String episode = remark.split(",")[0];
+//            String dpi = remark.split(",")[1];
             String targetFloderPath = null;
             String targetFilePath = null;
             Path tempDir = null;
             try {
-                VideoQualityStrategy videoQualityStrategy = VideoQuality.getStrategyClassByCode(dpi).
+                VideoQualityStrategy videoQualityStrategy = VideoQuality.getStrategyClassByCode(mediaProcess.getRemark()).
                         getDeclaredConstructor().newInstance();
 
                 //创建临时文件夹
@@ -180,7 +180,7 @@ public class VideoTask {
             //处理成功 上传到OSS
 
             String s = uploadVideoFileToOSS(targetFloderPath, mediaProcess.getBucket(), result,
-                    mediaProcess.getFileId(), dpi , episode);
+                    mediaProcess.getFileId(), mediaProcess.getRemark() );
 
             if (StringUtils.isEmpty(s)) {
                 mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "3",
@@ -278,16 +278,15 @@ public class VideoTask {
                     //处理下载的视频文件
                     String result = "";
                     //根据备注来获取处理视频策略 5,2 (集数,清晰度)
-                    String remark = mediaProcess.getRemark();
-                    String episode = remark.split(",")[0];
-                    String dpi = remark.split(",")[1];
+//            String remark = mediaProcess.getRemark();
+//            String episode = remark.split(",")[0];
+//            String dpi = remark.split(",")[1];
                     String targetFloderPath = null;
                     String targetFilePath = null;
                     Path tempDir = null;
                     try {
-                        VideoQualityStrategy videoQualityStrategy = VideoQuality.getStrategyClassByCode(dpi).
+                        VideoQualityStrategy videoQualityStrategy = VideoQuality.getStrategyClassByCode(mediaProcess.getRemark()).
                                 getDeclaredConstructor().newInstance();
-
 
                         //创建临时文件夹
                         tempDir = Files.createTempDirectory("oss-upload-files"+ UUID.randomUUID());
@@ -316,7 +315,7 @@ public class VideoTask {
                     //处理成功 上传到OSS
 
                     String s = uploadVideoFileToOSS(targetFloderPath, mediaProcess.getBucket(), result,
-                            mediaProcess.getFileId(), dpi , episode);
+                            mediaProcess.getFileId(), mediaProcess.getRemark() );
 
                     if (StringUtils.isEmpty(s)) {
                         mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "3",
@@ -338,7 +337,7 @@ public class VideoTask {
     }
 
 
-    private String uploadVideoFileToOSS(String fileFloder,String bucket,String result,String fileMd5,String dpi,String episode) {
+    private String uploadVideoFileToOSS(String fileFloder,String bucket,String result,String fileMd5,String dpi) {
 
         String dpi_path = new CustomVideoUtil().getVideoDpiPath(Integer.parseInt(dpi));
 
@@ -456,7 +455,7 @@ public class VideoTask {
         jsonObject.put("video_base_url", url1);
         jsonObject.put("video_key_url", url2);
         jsonObject.put("video_ts_list", ts.length);
-        jsonObject.put("episode", episode);
+//        jsonObject.put("episode", episode);
         jsonObject.put("dpi", dpi);
         jsonObject.put("iv", iv);
 

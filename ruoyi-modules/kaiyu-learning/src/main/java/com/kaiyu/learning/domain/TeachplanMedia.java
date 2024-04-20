@@ -41,6 +41,11 @@ public class TeachplanMedia implements Serializable {
     private Long courseId;
 
     /**
+     *  课程集数
+     */
+    private String episode;
+
+    /**
      * 媒资文件原始名称
      */
     @TableField("media_fileName")

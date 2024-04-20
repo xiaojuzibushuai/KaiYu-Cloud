@@ -1,5 +1,6 @@
 package com.kaiyu.content;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.kaiyu.content.domain.Course;
 import com.kaiyu.content.mapper.CourseMapper;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,19 @@ public class KaiyuContentApplicationTest {
         result = courseMapper.getCourse(courseId,categoryId,courseClass);
         System.out.println(result);
 
+    }
+
+    @Test
+    void test() {
+        //将对应分类下的课程滞空
+        Course updateCourse = new Course();
+        updateCourse.setCategoryId(null);
+
+        LambdaUpdateWrapper<Course> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(Course::getCategoryId, 11);
+
+        // 执行批量更新
+        courseMapper.update(updateCourse, updateWrapper);
     }
 
 

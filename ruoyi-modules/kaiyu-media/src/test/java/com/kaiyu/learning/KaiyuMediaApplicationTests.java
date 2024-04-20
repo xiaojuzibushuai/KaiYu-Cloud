@@ -77,6 +77,16 @@ public class KaiyuMediaApplicationTests {
 
     }
 
+    @Test
+    void test2(){
+        String s ="5/d/5d3d3277f89ffe00f5d3074eca703d34/chunk/0";
+        String[] parts = s.split("/");
+        String lastPart = parts[parts.length - 1];
+//        String numString = lastPart.replaceAll("\\D+", "");
+        String numString = lastPart.trim();
+        System.out.println(Long.parseLong(numString));
+    }
+
 
     @Test
     void testUploadFile(){

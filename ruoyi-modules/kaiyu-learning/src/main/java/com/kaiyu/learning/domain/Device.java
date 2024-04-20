@@ -1,4 +1,4 @@
-package com.kaiyu.content.domain;
+package com.kaiyu.learning.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;

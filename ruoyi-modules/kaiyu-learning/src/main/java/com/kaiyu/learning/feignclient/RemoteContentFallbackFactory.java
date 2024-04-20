@@ -1,5 +1,6 @@
 package com.kaiyu.learning.feignclient;
 
+import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.domain.dto.TeachplanDto;
 import com.ruoyi.common.core.domain.R;
 import org.slf4j.Logger;
@@ -27,6 +28,12 @@ public class RemoteContentFallbackFactory implements FallbackFactory<RemoteConte
             @Override
             public R<TeachplanDto> getTeachplanByCourseId(Long courseId) {
                 log.error("调用内容管理服务查询教学计划发生熔断:{}", cause.toString(),cause);
+                return null;
+            }
+
+            @Override
+            public RestResponse<Object> getDeviceListBySceneid(String sceneid) {
+                log.error("调用内容管理服务查询设备列表发生熔断:{}", cause.toString(),cause);
                 return null;
             }
         };
