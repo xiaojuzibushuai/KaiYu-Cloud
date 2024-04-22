@@ -1,0 +1,63 @@
+# Tomcat
+server:
+  port: 9207
+
+# Spring
+spring:
+  application:
+    # 应用名称
+    name: kaiyu-media
+  servlet:
+    multipart:
+      #单个文件的大小限制 xiaojuzi
+      max-file-size: 50MB
+      #单次请求的大小限制 xiaojuzi
+      max-request-size: 50MB
+  profiles:
+    # 环境配置
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        # 服务注册地址
+        server-addr: 127.0.0.1:8848
+      config:
+        # 配置中心地址
+        server-addr: 127.0.0.1:8848
+        # 配置文件格式
+        file-extension: yml
+        # 共享配置
+        shared-configs:
+        - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+#配置在配置中心 此处删除 xiaojuzi
+#aliyun:
+#  oss:
+#    cdn_oss_url: http://cdn.course.v5ky.com
+#    accessKeyId: LTAI5tQEh2XoHCLNQV1zGUNt
+#    accessKeySecret: 905YkQEFw7kdiPLEv2clz6Xb7VrySG
+#    endpoint: http://oss-cn-wuhan-lr.aliyuncs.com
+#    files:
+#      bucketName: kaiyu-files-resource
+#    videofiles:
+#      bucketName: kaiyu-video-resource
+
+xxl:
+  job:
+    admin:
+      #调度中心集群部署存在多个地址则用逗号分隔
+#      addresses: http://121.89.199.156:32638/xxl-job-admin
+      addresses: http://172.16.0.230:8088/xxl-job-admin/
+    executor:
+      appname: media-process-service
+      address:
+      ip:
+      port: 9999
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 30
+    accessToken: default_token
+
+videoprocess:
+  # 线上地址
+#  ffmpegpath: /var/www/ffmpeg/ffmpeg-6.1/ffmpeg
+  # 本地地址
+  ffmpegpath: D:\\桌面\\ffmpeg\\ffmpeg.exe
