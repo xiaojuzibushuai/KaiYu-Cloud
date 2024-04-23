@@ -102,6 +102,10 @@ public class MediaFilesController {
             //上传文件
             UploadFileResultDto uploadFileResultDto = mediaFileService.uploadFile(uploadFileParamsDto, absolutePath, folder , objectName);
 
+            if (uploadFileResultDto == null) {
+                return R.fail("上传文件重复或网络错误");
+            }
+
             return R.ok(uploadFileResultDto);
 
         } catch (IOException e) {

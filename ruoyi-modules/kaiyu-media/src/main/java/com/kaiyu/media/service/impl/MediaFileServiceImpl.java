@@ -118,6 +118,12 @@ public class MediaFileServiceImpl implements MediaFileService {
             KaiYuEducationException.cast("文件md5为空");
         }
 
+        //进行文件md5值校验 没有才让继续上传
+        MediaFiles mediaFiles1 = mediaFilesMapper.selectById(fileMd5);
+        if (mediaFiles1 != null) {
+            return null;
+        }
+
         String filename = uploadFileParamsDto.getFilename();
         String extension = filename.substring(filename.lastIndexOf("."));
 
@@ -192,7 +198,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         }
         int mediaFilesInsert = mediaFilesMapper.insert(mediaFiles);
         if (mediaFilesInsert <= 0) {
-            KaiYuEducationException.cast("保存文件信息失败");
+            KaiYuEducationException.cast("保存文件信息失败,该文件已经存在或数据库异常");
         }
 
         // 如果是mp4视频，则额外添加至视频待处理表 视频需要加密切片等操作 xiaojuzi
