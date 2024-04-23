@@ -72,6 +72,12 @@ public class UserLoginServiceImpl implements UserLoginService {
     }
 
     @Override
+    public AdminUser getAdminUserInfo(String username) {
+        AdminUser adminUserInfo = adminUserMapper.getAdminUserInfo(username);
+        return adminUserInfo;
+    }
+
+    @Override
     public User getUserInfo(String register_phone) {
         User user = userMapper.getUserInfo(register_phone);
         return user;

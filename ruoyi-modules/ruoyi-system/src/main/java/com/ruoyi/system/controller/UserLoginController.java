@@ -136,21 +136,37 @@ public class UserLoginController {
     public R<UserVo> getUserInfo(HttpServletRequest request){
 
         String token = SecurityUtils.getToken(request);
+//        Claims claims = JwtUtils.parseToken(token);
 
         if (StringUtils.isNotEmpty(token))
         {
             String register_phone = JwtUtils.getPhone(token);
+            String userName = JwtUtils.getUserName(token);
             if (StringUtils.isNotEmpty(register_phone))
             {
                 User userInfo = userLoginService.getUserInfo(register_phone);
                 UserVo userVo = new UserVo();
+                userVo.setId(userInfo.getId());
                 userVo.setUserid(userInfo.getOpenid());
                 userVo.setLoginTime(userInfo.getUptime());
                 userVo.setRegister_phone(userInfo.getRegister_phone());
                 userVo.setIpaddr(userInfo.getIp());
-                userVo.setUsername(userInfo.getNickname());
+                userVo.setNickname(userInfo.getNickname());
                 userVo.setAvatar(userInfo.getAvatar());
+                userVo.setSex(userInfo.getSex());
 
+                return R.ok(userVo);
+            }
+            if (StringUtils.isNotEmpty(userName))
+            {
+                AdminUser userInfo = userLoginService.getAdminUserInfo(userName);
+                UserVo userVo = new UserVo();
+                userVo.setId(userInfo.getId());
+                userVo.setUsername(userInfo.getUsername());
+                userVo.setRegister_phone(userInfo.getRegister_phone());
+                userVo.setAvatar(userInfo.getAvatar());
+                userVo.setSex(userInfo.getSex());
+                userVo.setEmail(userInfo.getEmail());
                 return R.ok(userVo);
             }
 

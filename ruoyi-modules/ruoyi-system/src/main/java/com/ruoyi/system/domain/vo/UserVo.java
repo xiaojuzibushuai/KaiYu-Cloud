@@ -16,12 +16,17 @@ import java.util.Set;
 @ToString
 public class UserVo {
 
+    private Long id;
+
     private String userid;
     private String username;
     private LocalDateTime loginTime;
     private String ipaddr;
     private String register_phone;
     private String avatar;
+    private String email;
+    private int sex;
+    private String nickname;
     /**
      * 权限列表
      */

@@ -25,4 +25,10 @@ public class AdminUser implements Serializable {
         private String password;
         private int active;
         private LocalDateTime confirmed_at;
+
+        private String register_phone;
+
+        private int sex;
+
+        private String avatar;
 }

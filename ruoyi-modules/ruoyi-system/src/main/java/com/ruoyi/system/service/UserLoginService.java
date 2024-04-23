@@ -18,6 +18,8 @@ public interface UserLoginService {
 
     AdminUser selectAdminUserByUserName(String username, String password);
 
+    AdminUser getAdminUserInfo(String username);
+
     User getUserInfo(String register_phone);
 
     User smsLogin(String register_phone, String code);
