@@ -124,7 +124,7 @@ public class TokenController
         return R.ok("fail");
     }
 
-    @PostMapping
+    @PostMapping("/sendSms")
     @ApiOperation("短信验证码发送")
     public R<?> sendSms(@RequestBody SendSmsDto sendSmsDto) {
 

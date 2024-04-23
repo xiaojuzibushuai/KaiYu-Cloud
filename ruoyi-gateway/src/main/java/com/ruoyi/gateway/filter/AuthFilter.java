@@ -21,6 +21,8 @@ import com.ruoyi.gateway.config.properties.IgnoreWhiteProperties;
 import io.jsonwebtoken.Claims;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 网关鉴权
  * 
@@ -66,6 +68,12 @@ public class AuthFilter implements GlobalFilter, Ordered
         if (!islogin)
         {
             return unauthorizedResponse(exchange, "登录状态已过期");
+        }
+
+        //活跃用户令牌自动续费
+        long expireTime = redisService.getExpire(getTokenKey(userkey));
+        if (expireTime <= 300 && expireTime > 0){
+            redisService.expire(getTokenKey(userkey),120, TimeUnit.MINUTES);
         }
 
 
