@@ -72,7 +72,7 @@ public class AuthFilter implements GlobalFilter, Ordered
 
         //活跃用户令牌自动续费
         long expireTime = redisService.getExpire(getTokenKey(userkey));
-        if (expireTime <= 300 && expireTime > 0){
+        if (expireTime > 0){
             redisService.expire(getTokenKey(userkey),120, TimeUnit.MINUTES);
         }
 
