@@ -67,6 +67,7 @@ public class TokenController
                 return R.fail("手机号验证码错误或失效");
             }
             // 获取登录token
+
             return R.ok(tokenService.createToken(userInfo));
         }
 
@@ -87,6 +88,7 @@ public class TokenController
             return R.fail("用户名或密码错误");
         }
         // 获取登录token
+
         return R.ok(tokenService.createToken(userInfo));
     }
 

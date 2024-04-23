@@ -2,15 +2,20 @@ package com.kaiyu.learning.controller;
 
 import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.service.LearningService;
+import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.core.utils.JwtUtils;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
+import com.ruoyi.common.security.auth.AuthUtil;
+import com.ruoyi.common.security.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @program: kai-yu-cloud
@@ -37,9 +42,23 @@ public class MyLearningController {
 
     }
 
-    
+
+    @ApiOperation("获取用户场景列表")
+    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+    @PostMapping("/getSceneList")
+    public RestResponse<Object> getSceneList(HttpServletRequest request) {
+
+        List sceneList = learningService.getSceneList(request);
+
+        if (sceneList == null || sceneList.size() == 0) {
+            return RestResponse.success("用户未绑定场景或网络错误");
+        }
+
+        return RestResponse.success(sceneList);
+
+        }
 
 
+    }
 
 
-}

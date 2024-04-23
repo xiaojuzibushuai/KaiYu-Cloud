@@ -29,6 +29,12 @@ public interface RemoteContentService {
     public RestResponse<Object> getDeviceListBySceneid(@RequestParam("sceneid") String sceneid);
 
 
+
+    @ApiOperation("获取用户场景列表")
+    @PostMapping("/content/device/getSceneList")
+    public RestResponse<Object> getSceneList(@RequestParam("phone") String phone);
+
+
     
     
 }

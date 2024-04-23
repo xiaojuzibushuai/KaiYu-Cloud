@@ -121,8 +121,12 @@ public class MediaFileServiceImpl implements MediaFileService {
         //进行文件md5值校验 没有才让继续上传
         MediaFiles mediaFiles1 = mediaFilesMapper.selectById(fileMd5);
         if (mediaFiles1 != null) {
-            return null;
+            log.info("文件已存在");
+            UploadFileResultDto uploadFileResultDto1 = new UploadFileResultDto();
+            BeanUtils.copyProperties(mediaFiles1, uploadFileResultDto1);
+            return uploadFileResultDto1;
         }
+
 
         String filename = uploadFileParamsDto.getFilename();
         String extension = filename.substring(filename.lastIndexOf("."));

@@ -1,15 +1,21 @@
 package com.kaiyu.content.controller;
 
 import com.kaiyu.content.domain.Device;
+import com.kaiyu.content.domain.DeviceGroup;
 import com.kaiyu.content.domain.RestResponse;
 import com.kaiyu.content.service.IDeviceService;
+import com.ruoyi.common.core.utils.JwtUtils;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
+import com.ruoyi.common.security.utils.SecurityUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
@@ -40,5 +46,20 @@ public class DeviceController {
     }
 
 
+    @ApiOperation("获取用户场景列表")
+    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+    @PostMapping("/getSceneList")
+    public RestResponse<Object> getSceneList(@RequestParam("phone") String phone) {
+        if (StringUtils.isNotEmpty(phone))
+        {
+            List sceneList = deviceService.getSceneList(phone);
+
+            if (sceneList == null || sceneList.size() == 0) {
+                return RestResponse.success("还没创建场景列表");
+            }
+            return RestResponse.success(sceneList);
+        }
+        return RestResponse.validfail("只限用户端账号获取");
+    }
 
 }

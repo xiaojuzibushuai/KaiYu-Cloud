@@ -1,6 +1,7 @@
 package com.kaiyu.content.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
@@ -52,6 +53,6 @@ public class Category implements Serializable
 
     /** $column.columnComment */
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
-    private Date uptime;
+    private LocalDateTime uptime;
 
 }

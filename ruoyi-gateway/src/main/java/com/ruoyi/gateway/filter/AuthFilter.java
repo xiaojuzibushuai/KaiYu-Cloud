@@ -1,5 +1,6 @@
 package com.ruoyi.gateway.filter;
-
+import com.ruoyi.common.core.domain.R;
+import com.ruoyi.system.api.model.LoginUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,6 @@ public class AuthFilter implements GlobalFilter, Ordered
     @Autowired
     private RedisService redisService;
 
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain)
     {
@@ -58,11 +58,13 @@ public class AuthFilter implements GlobalFilter, Ordered
         {
             return unauthorizedResponse(exchange, "令牌不能为空");
         }
+
         Claims claims = JwtUtils.parseToken(token);
         if (claims == null)
         {
             return unauthorizedResponse(exchange, "令牌已过期或验证不正确！");
         }
+
         String userkey = JwtUtils.getUserKey(claims);
         boolean islogin = redisService.hasKey(getTokenKey(userkey));
         if (!islogin)
@@ -71,10 +73,20 @@ public class AuthFilter implements GlobalFilter, Ordered
         }
 
         //活跃用户令牌自动续费
-        long expireTime = redisService.getExpire(getTokenKey(userkey));
-        if (expireTime > 0){
-            redisService.expire(getTokenKey(userkey),120, TimeUnit.MINUTES);
+        LoginUser loginUser = redisService.getCacheObject(getTokenKey(userkey));
+        if (StringUtils.isNotNull(loginUser))
+        {
+            loginUser.setLoginTime(System.currentTimeMillis());
+            loginUser.setExpireTime(loginUser.getLoginTime() + 120 * 60);
+            // 根据uuid将loginUser缓存
+            String userKey = getTokenKey(loginUser.getToken());
+            redisService.setCacheObject(userKey, loginUser, 120L, TimeUnit.MINUTES);
         }
+
+//        long expireTime = redisService.getExpire(getTokenKey(userkey));
+//        if (expireTime > 0){
+//            redisService.expire(getTokenKey(userkey),120, TimeUnit.MINUTES);
+//        }
 
 
 //        String userid = JwtUtils.getUserId(claims);

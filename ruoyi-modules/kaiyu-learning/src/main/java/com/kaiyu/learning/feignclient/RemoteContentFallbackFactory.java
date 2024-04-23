@@ -36,6 +36,11 @@ public class RemoteContentFallbackFactory implements FallbackFactory<RemoteConte
                 log.error("调用内容管理服务查询设备列表发生熔断:{}", cause.toString(),cause);
                 return null;
             }
+
+            @Override
+            public RestResponse<Object> getSceneList(String phone) {
+                return null;
+            }
         };
     }
 

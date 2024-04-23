@@ -28,8 +28,9 @@ public class DeviceGroup implements Serializable {
 
     private String userid;
     private String scenename;
+
     @TableField("sub_scenename")
-    private String sub_scenename;
+    private String subScenename;
 
 
 }

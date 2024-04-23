@@ -7,11 +7,17 @@ import com.kaiyu.learning.domain.TeachplanMedia;
 import com.kaiyu.learning.domain.dto.TeachplanDto;
 import com.kaiyu.learning.feignclient.RemoteContentService;
 import com.kaiyu.learning.feignclient.RemoteMediaService;
+import com.kaiyu.learning.feignclient.RemoteSystemService;
 import com.kaiyu.learning.service.LearningService;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.core.utils.JwtUtils;
+import com.ruoyi.common.core.utils.StringUtils;
+import com.ruoyi.common.security.utils.SecurityUtils;
+import com.ruoyi.system.api.model.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 /**
@@ -30,6 +36,10 @@ public class LearningServiceImpl implements LearningService {
     @Autowired
 //    @Qualifier("")
     RemoteMediaService remoteMediaService;
+
+    @Autowired
+    RemoteSystemService remoteSystemService;
+
 
     @Autowired
     private MqttProviderConfig providerClient;
@@ -114,6 +124,21 @@ public class LearningServiceImpl implements LearningService {
         return RestResponse.success(send_result);
     }
 
+    @Override
+    public List getSceneList(HttpServletRequest request) {
+
+        String token = SecurityUtils.getToken(request);
+        if (StringUtils.isNotEmpty(token))
+        {
+            String phone = JwtUtils.getPhone(token);
+            RestResponse<Object> sceneList = remoteContentService.getSceneList(phone);
+            if (sceneList.getResult() != null) {
+                return (List) sceneList.getResult();
+            }
+        }
+
+        return null;
+    }
 
 
 }

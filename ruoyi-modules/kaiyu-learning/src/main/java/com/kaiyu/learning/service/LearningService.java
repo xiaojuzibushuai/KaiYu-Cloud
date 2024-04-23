@@ -2,6 +2,9 @@ package com.kaiyu.learning.service;
 
 import com.kaiyu.learning.domain.RestResponse;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+
 /**
  * @program: kai-yu-cloud
  * @description:
@@ -15,4 +18,5 @@ public interface LearningService {
 
     RestResponse<Object> videoAutoPushActionToDevice(String operate,String sceneid);
 
+    List getSceneList(HttpServletRequest request);
 }

@@ -21,6 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -103,7 +104,8 @@ public class CategoryServiceImpl implements ICategoryService {
                     .set(StringUtils.isNotEmpty(categoryDto.getDetail()), Category::getDetail, categoryDto.getDetail())
                     .set(StringUtils.isNotEmpty(categoryDto.getSavePath()), Category::getSavePath, categoryDto.getSavePath())
                     .set(categoryDto.getPriority() > 0, Category::getPriority, categoryDto.getPriority())
-                    .set(categoryDto.getIndexCate() >= 0, Category::getIndexCate, categoryDto.getIndexCate());
+                    .set(categoryDto.getIndexCate() >= 0, Category::getIndexCate, categoryDto.getIndexCate())
+                    .set(Category::getUptime, LocalDateTime.now());
 
             int update = categoryMapper.update(null, wrapper);
             if (update > 0){
@@ -120,7 +122,16 @@ public class CategoryServiceImpl implements ICategoryService {
             //分类不存在 新增
             Category category = new Category();
             BeanUtils.copyProperties(categoryDto, category);
+
+            //查询有没这个标题
+            Category category1 = categoryMapper.selectOne(new LambdaQueryWrapper<Category>().eq(Category::getTitle, category.getTitle()));
+            if (category1 != null){
+                return RestResponse.validfail("该分类名已存在");
+            }
+
+            category.setUptime(LocalDateTime.now());
             int insert = categoryMapper.insert(category);
+
             if (insert > 0){
                 //新增设备分类关系
                 List<Device> devices = deviceMapper.selectList(new LambdaQueryWrapper<Device>().eq(Device::getIs_auth, 1));
