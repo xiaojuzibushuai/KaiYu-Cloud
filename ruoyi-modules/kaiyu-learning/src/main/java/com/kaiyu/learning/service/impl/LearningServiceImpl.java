@@ -13,7 +13,6 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.JwtUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.utils.SecurityUtils;
-import com.ruoyi.system.api.model.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,7 +70,7 @@ public class LearningServiceImpl implements LearningService {
                         return remoteMediaService.getPlayUrlByMediaId(mediaId);
                     });
             if (res.isPresent()) {
-                if(res.get().getResult()!=null){
+                if(res.get().getData()!=null){
                     return res.get();
                 }else {
                     return RestResponse.validfail("课程媒体不存在");
@@ -92,7 +91,7 @@ public class LearningServiceImpl implements LearningService {
             return RestResponse.validfail("参数不合法");
         }
 
-        List<LinkedHashMap<String, String>> result = (List<LinkedHashMap<String, String>>) remoteContentService.getDeviceListBySceneid(sceneid).getResult();
+        List<LinkedHashMap<String, String>> result = (List<LinkedHashMap<String, String>>) remoteContentService.getDeviceListBySceneid(sceneid).getData();
 
         if (result == null || result.size() == 0) {
             return RestResponse.validfail("设备不存在");
@@ -132,8 +131,8 @@ public class LearningServiceImpl implements LearningService {
         {
             String phone = JwtUtils.getPhone(token);
             RestResponse<Object> sceneList = remoteContentService.getSceneList(phone);
-            if (sceneList.getResult() != null) {
-                return (List) sceneList.getResult();
+            if (sceneList.getData() != null) {
+                return (List) sceneList.getData();
             }
         }
 

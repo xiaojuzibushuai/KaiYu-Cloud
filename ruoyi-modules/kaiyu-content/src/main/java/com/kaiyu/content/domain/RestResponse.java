@@ -21,7 +21,7 @@ public class RestResponse<T> {
     /**
      * 响应内容
      */
-    private T result;
+    private T data;
 
     public RestResponse(int code, String msg) {
         this.code = code;
@@ -52,7 +52,7 @@ public class RestResponse<T> {
         RestResponse<T> response = new RestResponse<>();
         response.setCode(-1);
         response.setMsg(msg);
-        response.setResult(result);
+        response.setData(result);
         return response;
     }
 
@@ -65,14 +65,14 @@ public class RestResponse<T> {
 
     public static <T> RestResponse<T> success(T result) {
         RestResponse<T> response = new RestResponse<>();
-        response.setResult(result);
+        response.setData(result);
         return response;
     }
 
     public static <T> RestResponse<T> success(String msg, T result) {
         RestResponse<T> response = new RestResponse<>();
         response.setMsg(msg);
-        response.setResult(result);
+        response.setData(result);
         return response;
     }
 }
