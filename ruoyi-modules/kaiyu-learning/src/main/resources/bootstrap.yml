@@ -40,9 +40,9 @@ spring:
       topic: iot/2/default_topic
 
 # 开启sql日志 xiaojuzi
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
 
