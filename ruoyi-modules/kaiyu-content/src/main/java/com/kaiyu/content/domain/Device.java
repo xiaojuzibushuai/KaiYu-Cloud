@@ -41,7 +41,7 @@ public class Device implements Serializable
     private String mac;
     private String remark;
     @TableField(value = "d_type")
-    private int d_type;
+    private int dType;
     private String status;
     @TableField(value = "create_at")
     private LocalDateTime create_at;

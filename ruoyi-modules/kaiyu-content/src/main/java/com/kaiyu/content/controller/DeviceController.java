@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: kai-yu-cloud
@@ -34,7 +35,7 @@ public class DeviceController {
     private IDeviceService deviceService;
 
 
-    @ApiOperation("根据场景id获取设备列表")
+    @ApiOperation("根据场景id获取画小宇设备列表")
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @PostMapping("/getDeviceListBySceneid")
     public RestResponse<Object> getDeviceListBySceneid(@RequestParam("sceneid") String sceneid) {
@@ -46,8 +47,8 @@ public class DeviceController {
     }
 
 
-    @ApiOperation("获取用户场景列表")
-    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+    @ApiOperation("前端播放视频选择场景返回-获取用户场景列表")
+    @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
     @PostMapping("/getSceneList")
     public RestResponse<Object> getSceneList(@RequestParam("phone") String phone) {
         if (StringUtils.isNotEmpty(phone))
@@ -59,7 +60,23 @@ public class DeviceController {
             }
             return RestResponse.success(sceneList);
         }
-        return RestResponse.validfail("只限用户端账号获取");
+        return RestResponse.validfail("手机号不能为空");
+    }
+
+
+    @ApiOperation("前端播放视频选择场景返回-用户场景下所有设备列表")
+    @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
+    @PostMapping("/getAllDeviceListBySceneid")
+    public RestResponse<Object> getAllDeviceListBySceneid(@RequestParam("sceneid") String sceneid) {
+        if (StringUtils.isNotEmpty(sceneid)) {
+            Map devices = deviceService.getAllDeviceListBySceneid(sceneid);
+
+            if (devices == null || devices.size() == 0) {
+                return RestResponse.validfail("未找到设备列表");
+            }
+            return RestResponse.success(devices);
+        }
+        return RestResponse.validfail("场景id不能为空");
     }
 
 }

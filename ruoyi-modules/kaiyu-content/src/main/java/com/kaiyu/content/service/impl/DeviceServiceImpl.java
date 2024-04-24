@@ -1,13 +1,9 @@
 package com.kaiyu.content.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.kaiyu.content.domain.Device;
-import com.kaiyu.content.domain.DeviceGroup;
-import com.kaiyu.content.domain.UserDevice;
+import com.kaiyu.content.domain.*;
 import com.kaiyu.content.feignclient.RemoteSystemService;
-import com.kaiyu.content.mapper.DeviceGroupMapper;
-import com.kaiyu.content.mapper.DeviceMapper;
-import com.kaiyu.content.mapper.UserDeviceMapper;
+import com.kaiyu.content.mapper.*;
 import com.kaiyu.content.service.IDeviceService;
 import com.ruoyi.common.core.constant.TokenConstants;
 import com.ruoyi.common.core.domain.R;
@@ -40,9 +36,13 @@ public class DeviceServiceImpl implements IDeviceService {
     @Autowired
     private DeviceMapper deviceMapper;
     @Autowired
+    private ExternalDeviceMapper externalDeviceMapper;
+    @Autowired
     private DeviceGroupMapper deviceGroupMapper;
     @Autowired
     private UserDeviceMapper userDeviceMapper;
+    @Autowired
+    private UserExternalDeviceMapper userExternalDeviceMapper;
 
     @Autowired
     private RemoteSystemService remoteSystemService;
@@ -56,6 +56,7 @@ public class DeviceServiceImpl implements IDeviceService {
             log.info("getDeviceListBySceneid场景id为空");
             return null;
         }
+
         DeviceGroup deviceGroup = deviceGroupMapper.selectById(sceneid);
         if (deviceGroup == null){
             log.info("getDeviceListBySceneid时deviceGroup不存在");
@@ -72,19 +73,10 @@ public class DeviceServiceImpl implements IDeviceService {
             return null;
         }
 
-        List<String> deviceids = userDevices.stream().map(userDevice -> userDevice.getDeviceid()).collect(Collectors.toList());
-
-        List<Device> result = new ArrayList<>();
-
-        deviceids.forEach(deviceid -> {
-            Device device = deviceMapper.selectDeviceByDeviceId(deviceid);
-            if (device != null){
-                result.add(device);
-            }
-        });
-
-        return result;
-
+        return userDevices.stream().map(userDevice ->
+                 deviceMapper.selectDeviceByDeviceId(userDevice.getDeviceid()))
+                .filter(device -> device != null)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -98,51 +90,102 @@ public class DeviceServiceImpl implements IDeviceService {
             List<DeviceGroup> deviceGroups = deviceGroupMapper.selectList(new LambdaQueryWrapper<DeviceGroup>()
                     .eq(DeviceGroup::getUserid, userInfo.getData().getUserid()));
 
-            List<Map<String, Object>> dataList = new ArrayList<>();
 
             if (deviceGroups != null && deviceGroups.size() > 0) {
 
-                Map<String, Object> dataDict = new HashMap<>();
+                return deviceGroups.stream().collect(
+                        Collectors.groupingBy(DeviceGroup::getScenename)
+                ).entrySet().stream().map(entry -> {
+                    String scenename = entry.getKey();
+                    List<DeviceGroup> deviceGroupsForScenename = entry.getValue();
 
-                dataDict.put("sub_scenename_list", new ArrayList<>());
+                    DeviceGroup representativeDeviceGroup = deviceGroupsForScenename.get(0);
 
-                for (DeviceGroup dg : deviceGroups) {
-                    dataDict.put("id", dg.getId());
-                    dataDict.put("userid", dg.getUserid());
-                    dataDict.put("scenename", dg.getScenename());
+                    Map<String, Object> dataDict = new HashMap<>();
+                    dataDict.put("id", representativeDeviceGroup.getId());
+                    dataDict.put("userid", representativeDeviceGroup.getUserid());
+                    dataDict.put("scenename", scenename);
 
-                    if (dataList.isEmpty()) {
-                        Map<String, Object> subDict = new HashMap<>();
-                        subDict.put("sub_id", dg.getId());
-                        subDict.put("sub_name", dg.getSubScenename());
-                        ((List<Map<String, Object>>) dataDict.get("sub_scenename_list")).add(subDict);
-                        dataList.add(dataDict);
-                    } else {
-                        boolean foundMatch = false;
-                        for (Map<String, Object> da : dataList) {
-                            if (da.get("scenename").equals(dg.getScenename())) {
+                    List<Map<String, Object>> subScenes = deviceGroupsForScenename.stream()
+                            .map(deviceGroup->{
                                 Map<String, Object> subDict = new HashMap<>();
-                                subDict.put("sub_id", dg.getId());
-                                subDict.put("sub_name", dg.getSubScenename());
-                                ((List<Map<String, Object>>) da.get("sub_scenename_list")).add(subDict);
-                                foundMatch = true;
-                                break;
-                            }
-                        }
+                                subDict.put("sub_id", deviceGroup.getId());
+                                subDict.put("sub_name", deviceGroup.getSubScenename());
+                                return subDict;
+                            })
+                            .collect(Collectors.toList());
 
-                        if (!foundMatch) {
-                            Map<String, Object> subDict = new HashMap<>();
-                            subDict.put("sub_id", dg.getId());
-                            subDict.put("sub_name", dg.getSubScenename());
-                            ((List<Map<String, Object>>) dataDict.get("sub_scenename_list")).add(subDict);
-                            dataList.add(dataDict);
-                        }
-                    }
+                    dataDict.put("sub_scenename_list", subScenes);
 
-                }
-                return dataList;
+                    return dataDict;
+
+                }).collect(Collectors.toList());
+
             }
         }
         return null;
     }
+
+    @Override
+    public Map getAllDeviceListBySceneid(String sceneid) {
+        DeviceGroup deviceGroup = deviceGroupMapper.selectById(sceneid);
+        if (deviceGroup != null) {
+
+            List<UserDevice> ud = userDeviceMapper.selectList(new LambdaQueryWrapper<UserDevice>()
+                    .eq(UserDevice::getUserid, deviceGroup.getUserid()).eq(UserDevice::getSceneid, deviceGroup.getId()));
+
+            List<UserExternalDevice> ued = userExternalDeviceMapper.selectList(new LambdaQueryWrapper<UserExternalDevice>()
+                    .eq(UserExternalDevice::getUserid, deviceGroup.getUserid())
+                    .eq(UserExternalDevice::getSceneid, deviceGroup.getId()));
+
+            Map<String, Object> dataDict = new HashMap<>();
+
+            dataDict.put("subScenename", deviceGroup.getSubScenename());
+            dataDict.put("UserDevice", buildUserDeviceList(ud));
+            dataDict.put("UserExternalDevice", buildUserExternalDeviceList(ued));
+
+            return dataDict;
+
+        }
+        return null;
+    }
+
+    private List<Map<String, Object>> buildUserDeviceList(List<UserDevice> userDevices) {
+
+        return userDevices.stream().map(userDevice->{
+            Map<String, Object> udDict = new HashMap<>();
+            udDict.put("deviceid", userDevice.getDeviceid());
+            udDict.put("devicename", deviceMapper.selectDeviceByDeviceId(userDevice.getDeviceid()).getDevicename());
+
+            List<Map<String, Object>> childList = userExternalDeviceMapper.selectList(new LambdaQueryWrapper<UserExternalDevice>()
+                            .eq(UserExternalDevice::getUserid, userDevice.getUserid())
+                            .eq(UserExternalDevice::getExternal_deviceid, userDevice.getDeviceid()))
+                    .stream()
+                    .map(this::buildExternalDeviceMap)
+                    .collect(Collectors.toList());
+
+            udDict.put("child_list", childList);
+            return udDict;
+        }).collect(Collectors.toList());
+
+    }
+
+    private List<Map<String, Object>> buildUserExternalDeviceList(List<UserExternalDevice> userExternalDevices) {
+        return userExternalDevices.stream()
+                .filter(ue -> ue.getExternal_deviceid() == null)
+                .map(this::buildExternalDeviceMap).collect(Collectors.toList());
+    }
+
+    private Map<String, Object> buildExternalDeviceMap(UserExternalDevice userExternalDevice) {
+        Map<String, Object> deviceMap = new HashMap<>();
+        ExternalDevice externalDevice = externalDeviceMapper.getExternalDeviceByDeviceid(userExternalDevice.getDeviceid());
+        if (externalDevice != null) {
+            deviceMap.put("deviceid", externalDevice.getDeviceid());
+            deviceMap.put("devicename", externalDevice.getDevicename());
+            deviceMap.put("d_type", externalDevice.getDType());
+        }
+        return deviceMap;
+    }
+
+
 }
