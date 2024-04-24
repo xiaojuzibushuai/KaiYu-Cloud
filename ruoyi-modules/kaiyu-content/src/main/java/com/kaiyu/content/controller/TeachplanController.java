@@ -54,7 +54,7 @@ public class TeachplanController {
     }
 
     @ApiOperation("查询对应课程视频媒资对象的url")
-    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}")
     public R getTeachplanMediaByCourseId(@PathVariable("courseId") Long courseId, @PathVariable("episode") String episode) {
         String url = teachplanService.getTeachplanMediaByCourseId(courseId, episode);
