@@ -62,6 +62,7 @@ public class CategoryServiceImpl implements ICategoryService {
         String categoriesJson = (String) redisTemplate.opsForValue().get(categoriesKey);
 
         if (StringUtils.isNotEmpty(categoriesJson)){
+            log.info("getAllCategories从缓存中获取数据");
             List<Category> categoryList = JSON.parseArray(categoriesJson, Category.class);
             return categoryList;
         }else {
@@ -71,6 +72,7 @@ public class CategoryServiceImpl implements ICategoryService {
 
             //没有则缓存
             redisTemplate.opsForValue().set(categoriesKey, JSON.toJSONString(categoryList),30 + new Random().nextInt(50), TimeUnit.MINUTES);
+            log.info("getAllCategories从数据库中获取数据");
             return categoryList;
         }
 

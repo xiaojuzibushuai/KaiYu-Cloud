@@ -4,6 +4,8 @@ import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.domain.dto.TeachplanDto;
 import com.ruoyi.common.core.constant.ServiceNameConstants;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.security.annotation.Logical;
+import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +29,10 @@ public interface RemoteContentService {
     @ApiOperation("根据场景id获取设备列表")
     @PostMapping("/content/device/getDeviceListBySceneid")
     public RestResponse<Object> getDeviceListBySceneid(@RequestParam("sceneid") String sceneid);
+
+    @ApiOperation("根据场景id获取外设设备列表")
+    @PostMapping("/content/device/getExternalDeviceListBySceneid")
+    public RestResponse<Object> getExternalDeviceListBySceneid(@RequestParam("sceneid") String sceneid);
 
 
 

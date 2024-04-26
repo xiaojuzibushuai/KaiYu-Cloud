@@ -2,6 +2,7 @@ package com.kaiyu.content.controller;
 
 import java.util.List;
 import java.io.IOException;
+import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.kaiyu.content.domain.PageParams;
@@ -65,6 +66,24 @@ public class CourseController {
                 queryCourseDto.getCourseClass()));
 
     }
+
+    @ApiOperation("前端播放课程时查询课程特定结构详情")
+    @PostMapping("/getCourseDeatil")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public R getCourseDeatil(@RequestParam("courseId") Long courseId ){
+        if (courseId <= 0) {
+            return R.fail("courseId参数不能为空！");
+        }
+        Map courseDeatil = courseService.getCourseDeatil(courseId);
+        if (courseDeatil == null || courseDeatil.size() == 0) {
+            return R.fail("课程计划不存在！");
+        }
+
+        return R.ok(courseDeatil);
+
+    }
+
+
 
     @PostMapping("/getCourseByMultipleConditions")
 //    @InnerAuth

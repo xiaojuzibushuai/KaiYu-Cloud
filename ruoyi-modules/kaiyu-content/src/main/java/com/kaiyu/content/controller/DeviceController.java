@@ -2,6 +2,7 @@ package com.kaiyu.content.controller;
 
 import com.kaiyu.content.domain.Device;
 import com.kaiyu.content.domain.DeviceGroup;
+import com.kaiyu.content.domain.ExternalDevice;
 import com.kaiyu.content.domain.RestResponse;
 import com.kaiyu.content.service.IDeviceService;
 import com.ruoyi.common.core.utils.JwtUtils;
@@ -47,6 +48,18 @@ public class DeviceController {
     }
 
 
+    @ApiOperation("根据场景id获取外设设备列表")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    @PostMapping("/getExternalDeviceListBySceneid")
+    public RestResponse<Object> getExternalDeviceListBySceneid(@RequestParam("sceneid") String sceneid) {
+        List<ExternalDevice> devices =deviceService.getExternalDeviceListBySceneid(sceneid);
+        if (devices == null || devices.size() == 0) {
+            return RestResponse.validfail("未找到设备id");
+        }
+        return RestResponse.success(devices);
+    }
+
+
     @ApiOperation("前端播放视频选择场景返回-获取用户场景列表")
     @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
     @PostMapping("/getSceneList")
@@ -78,5 +91,8 @@ public class DeviceController {
         }
         return RestResponse.validfail("场景id不能为空");
     }
+
+
+
 
 }

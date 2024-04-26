@@ -2,6 +2,7 @@ package com.kaiyu.content.service;
 
 import com.kaiyu.content.domain.Device;
 import com.kaiyu.content.domain.DeviceGroup;
+import com.kaiyu.content.domain.ExternalDevice;
 import org.apache.poi.ss.formula.functions.T;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,4 +22,6 @@ public interface IDeviceService {
     List getSceneList(String phone);
 
     Map getAllDeviceListBySceneid(String sceneid);
+
+    List<ExternalDevice> getExternalDeviceListBySceneid(String sceneid);
 }

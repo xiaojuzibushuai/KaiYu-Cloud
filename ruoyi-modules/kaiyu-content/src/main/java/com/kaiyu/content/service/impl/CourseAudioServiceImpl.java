@@ -68,11 +68,12 @@ public class CourseAudioServiceImpl implements ICourseAudioService {
         String courseAudioKey = "CourseId:" + courseId + "-" + "Episode:" + episode;
         String courseAudioJson = (String) redisTemplate.opsForHash().get("getAudioJsonByCourseId", courseAudioKey);
         if (StringUtils.isNotEmpty(courseAudioJson)) {
-//            CourseAudioDto courseAudioDto = JSON.parseObject(courseAudioJson, CourseAudioDto.class);
             // System.out.println("从缓存中获取数据");
-            JSONObject jsonObject = JSON.parseObject(courseAudioJson);
-            String timePointString = jsonObject.getString("timePoint");
-            JSONArray timePointArray = JSON.parseArray(timePointString);
+            log.info(courseAudioKey+"从缓存中获取数据");
+            Object parse = JSON.parse(courseAudioJson);
+
+            JSONObject jsonObject = JSON.parseObject(parse.toString());
+            JSONArray timePointArray = jsonObject.getJSONArray("timePoint");
             jsonObject.put("timePoint", timePointArray);
 
             return jsonObject;
@@ -95,13 +96,15 @@ public class CourseAudioServiceImpl implements ICourseAudioService {
             //缓存数据
             redisTemplate.opsForHash().put("getAudioJsonByCourseId",courseAudioKey,JSON.toJSONString(courseAudio.getAudiojson()));
             //设置过期时间
-            redisTemplate.expire("getAudioJsonByCourseId",30 + new Random().nextInt(100), TimeUnit.SECONDS);
+            redisTemplate.expire("getAudioJsonByCourseId",60 + new Random().nextInt(100), TimeUnit.SECONDS);
 
             //解析成前端需要格式
             JSONObject jsonObject = JSON.parseObject(courseAudio.getAudiojson());
-            String timePointString = jsonObject.getString("timePoint");
-            JSONArray timePointArray = JSON.parseArray(timePointString);
+            JSONArray timePointArray = jsonObject.getJSONArray("timePoint");
             jsonObject.put("timePoint", timePointArray);
+
+            log.info(courseAudioKey+"从数据库中获取数据");
+
             return jsonObject;
         }
     }

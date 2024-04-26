@@ -1,25 +1,21 @@
 package com.kaiyu.content.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.kaiyu.content.domain.*;
 import com.kaiyu.content.feignclient.RemoteSystemService;
 import com.kaiyu.content.mapper.*;
 import com.kaiyu.content.service.IDeviceService;
-import com.ruoyi.common.core.constant.TokenConstants;
 import com.ruoyi.common.core.domain.R;
+import com.ruoyi.common.core.exception.KaiYuEducationException;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.system.api.model.UserVo;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -57,26 +53,49 @@ public class DeviceServiceImpl implements IDeviceService {
             return null;
         }
 
-        DeviceGroup deviceGroup = deviceGroupMapper.selectById(sceneid);
-        if (deviceGroup == null){
-            log.info("getDeviceListBySceneid时deviceGroup不存在");
+        //处理sceneid 前端传递的格式为[1,2]
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = JSONArray.parseArray(sceneid);
+        }catch (Exception e){
+            KaiYuEducationException.cast(e.getMessage());
+        }
+
+        if (jsonArray == null || jsonArray.size() == 0){
+            log.info("getDeviceListBySceneid时jsonArray.size() == 0");
             return null;
         }
 
-        LambdaQueryWrapper<UserDevice> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserDevice::getSceneid,deviceGroup.getId());
-        queryWrapper.eq(UserDevice::getUserid,deviceGroup.getUserid());
-        List<UserDevice> userDevices = userDeviceMapper.selectList(queryWrapper);
+        List<Device> result = jsonArray.stream().map(obj -> {
+            String id = obj.toString();
+            DeviceGroup deviceGroup = deviceGroupMapper.selectById(id);
+            if (deviceGroup == null) {
+                log.info("getDeviceListBySceneid时deviceGroup不存在");
+                return Optional.empty();
+            }
 
-        if (userDevices == null || userDevices.size() == 0){
-            log.info("getDeviceListBySceneid时userDevices不存在");
-            return null;
-        }
+            LambdaQueryWrapper<UserDevice> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(UserDevice::getSceneid, deviceGroup.getId());
+            queryWrapper.eq(UserDevice::getUserid, deviceGroup.getUserid());
+            List<UserDevice> userDevices = userDeviceMapper.selectList(queryWrapper);
 
-        return userDevices.stream().map(userDevice ->
-                 deviceMapper.selectDeviceByDeviceId(userDevice.getDeviceid()))
-                .filter(device -> device != null)
-                .collect(Collectors.toList());
+            if (userDevices == null || userDevices.size() == 0) {
+                log.info("getDeviceListBySceneid时userDevices不存在");
+                return Optional.empty();
+            }
+
+            List<Device> deviceList = userDevices.stream().map(userDevice ->
+                    deviceMapper.selectDeviceByDeviceId(userDevice.getDeviceid())
+            ).filter(Objects::nonNull).collect(Collectors.toList());
+
+            return Optional.of(deviceList);
+        }).filter(Optional::isPresent).map(Optional::get).flatMap(list -> {
+            List<Device> data = (List<Device>) list;
+            return data.stream();
+        }).collect(Collectors.toList());
+
+        return result;
+
     }
 
     @Override
@@ -150,6 +169,66 @@ public class DeviceServiceImpl implements IDeviceService {
         return null;
     }
 
+    @Override
+    public List<ExternalDevice> getExternalDeviceListBySceneid(String sceneid) {
+
+        if (StringUtils.isEmpty(sceneid)){
+            log.info("getExternalDeviceListBySceneid场景id为空");
+            return null;
+        }
+
+        //处理sceneid 前端传递的格式为[1,2]
+        JSONArray jsonArray = null;
+        try {
+            jsonArray = JSONArray.parseArray(sceneid);
+        }catch (Exception e){
+            KaiYuEducationException.cast(e.getMessage());
+        }
+
+        if (jsonArray == null || jsonArray.size() == 0){
+            log.info("getExternalDeviceListBySceneid时jsonArray.size() == 0");
+            return null;
+        }
+
+        List<ExternalDevice> result = jsonArray.stream().map(obj -> {
+            String id = obj.toString();
+            DeviceGroup deviceGroup = deviceGroupMapper.selectById(id);
+            if (deviceGroup == null) {
+                log.info("getExternalDeviceListBySceneid时deviceGroup不存在");
+                return Optional.empty();
+            }
+
+            LambdaQueryWrapper<UserDevice> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(UserDevice::getSceneid, deviceGroup.getId());
+            queryWrapper.eq(UserDevice::getUserid, deviceGroup.getUserid());
+            List<UserDevice> userDevices = userDeviceMapper.selectList(queryWrapper);
+
+            if (userDevices.isEmpty()) {
+                log.info("getDeviceListBySceneid时userDevices不存在");
+                return Optional.empty();
+            }
+
+            List<ExternalDevice> collect = userDevices.stream().map(userDevice -> {
+                LambdaQueryWrapper<UserExternalDevice> queryWrapper1 = new LambdaQueryWrapper<>();
+                queryWrapper1.eq(UserExternalDevice::getUserid, userDevice.getUserid());
+                queryWrapper1.eq(UserExternalDevice::getExternal_deviceid, userDevice.getDeviceid());
+                queryWrapper1.eq(UserExternalDevice::getDType, 2);
+                return userExternalDeviceMapper.selectOne(queryWrapper1);
+            }).filter(Objects::nonNull).map(userExternalDevice -> {
+                return externalDeviceMapper.getExternalDeviceByDeviceid(userExternalDevice.getDeviceid());
+            }).collect(Collectors.toList());
+
+            return Optional.of(collect);
+
+        }).filter(Optional::isPresent).map(Optional::get).flatMap(list -> {
+            List<ExternalDevice> data = (List<ExternalDevice>) list;
+            return data.stream();
+        }).collect(Collectors.toList());
+
+        return result;
+
+    }
+
     private List<Map<String, Object>> buildUserDeviceList(List<UserDevice> userDevices) {
 
         return userDevices.stream().map(userDevice->{
@@ -173,7 +252,8 @@ public class DeviceServiceImpl implements IDeviceService {
     private List<Map<String, Object>> buildUserExternalDeviceList(List<UserExternalDevice> userExternalDevices) {
         return userExternalDevices.stream()
                 .filter(ue -> ue.getExternal_deviceid() == null)
-                .map(this::buildExternalDeviceMap).collect(Collectors.toList());
+                .map(this::buildExternalDeviceMap)
+                .collect(Collectors.toList());
     }
 
     private Map<String, Object> buildExternalDeviceMap(UserExternalDevice userExternalDevice) {

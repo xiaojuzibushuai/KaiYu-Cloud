@@ -1,6 +1,8 @@
 package com.kaiyu.content.service;
 
 import java.util.List;
+import java.util.Map;
+
 import com.kaiyu.content.domain.Course;
 import com.kaiyu.content.domain.PageParams;
 import com.kaiyu.content.domain.PageResult;
@@ -24,4 +26,6 @@ public interface ICourseService
     List<Course> getCourse(Long courseId,Long categoryId,String courseClass);
 
     PageResult<CourseCategoryVo> queryCourseByMultipleConditions(PageParams pageParams, QueryAdminCourseDto queryCourseDto);
+
+    Map getCourseDeatil(Long courseId);
 }

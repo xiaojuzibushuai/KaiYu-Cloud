@@ -1,27 +1,31 @@
 package com.kaiyu.content.service.impl;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.kaiyu.content.domain.Category;
-import com.kaiyu.content.domain.PageParams;
-import com.kaiyu.content.domain.PageResult;
+import com.kaiyu.content.domain.*;
 import com.kaiyu.content.domain.dto.QueryAdminCourseDto;
 import com.kaiyu.content.domain.dto.QueryCourseDto;
 import com.kaiyu.content.domain.vo.CourseCategoryVo;
+import com.kaiyu.content.feignclient.RemoteMediaService;
 import com.kaiyu.content.mapper.CategoryMapper;
+import com.kaiyu.content.mapper.TeachplanMediaMapper;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import com.kaiyu.content.mapper.CourseMapper;
-import com.kaiyu.content.domain.Course;
 import com.kaiyu.content.service.ICourseService;
 
 /**
@@ -34,6 +38,8 @@ import com.kaiyu.content.service.ICourseService;
 public class CourseServiceImpl implements ICourseService 
 {
 
+    private static final Logger log = LoggerFactory.getLogger(CourseServiceImpl.class);
+
     @Autowired
     CourseMapper courseMapper;
 
@@ -43,6 +49,11 @@ public class CourseServiceImpl implements ICourseService
     @Autowired
     CategoryMapper categoryMapper;
 
+    @Autowired
+    TeachplanMediaMapper teachplanMediaMapper;
+
+    @Autowired
+    private RemoteMediaService remoteMediaService;
 
 
     /**
@@ -66,6 +77,7 @@ public class CourseServiceImpl implements ICourseService
 
         String coursesJson = (String) redisTemplate.opsForHash().get("getCourses",courseKey1);
         if (StringUtils.isNotEmpty(coursesJson)) {
+            log.info(courseKey+"从缓存中获取数据");
             List<Course> courses = JSON.parseArray(coursesJson, Course.class);
 //            System.out.println("从缓存中获取数据");
             return courses;
@@ -109,6 +121,55 @@ public class CourseServiceImpl implements ICourseService
         PageResult<CourseCategoryVo> courseList = new PageResult<>(courseCategoryVos, total, pageParams.getPageNo(), pageParams.getPageSize());
 
         return courseList;
+    }
+
+    @Override
+    public Map getCourseDeatil(Long courseId) {
+        Course course = courseMapper.selectById(courseId);
+        if (course != null) {
+            //查询对应的课程计划
+            LambdaQueryWrapper<TeachplanMedia> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(TeachplanMedia::getCourseId, courseId);
+
+            List<TeachplanMedia> teachplanMedia = teachplanMediaMapper.selectList(queryWrapper);
+
+            if (teachplanMedia == null || teachplanMedia.size() == 0) {
+                log.info("getCourseDeatil时没有找到课程的教学计划");
+                return null;
+            }
+
+            //查询对应课程计划的资源url
+            List<Object> videoList = new ArrayList<>();
+
+            for (TeachplanMedia item : teachplanMedia) {
+                //远程调用媒资模块查询url
+                R<MediaFiles> mediaFilesDetail = remoteMediaService.getMediaFilesDetail(item.getMediaId());
+                if (mediaFilesDetail.getData() != null) {
+                    //进行判断
+                    MediaFiles mediaFiles = mediaFilesDetail.getData();
+                    if (mediaFiles.getFileType().equals("001002")){
+                        JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+                        List<JSONObject> list = jsonArray.stream().map(item1 -> {
+                            JSONObject jsonObject = (JSONObject) item1;
+                            jsonObject.put("episode", item.getEpisode());
+                            return jsonObject;
+                        }).collect(Collectors.toList());
+
+                        videoList.addAll(list);
+
+                    }
+                }
+            }
+
+            Map<String, Object> courseDto = new HashMap<>();
+            courseDto.put("course", course);
+            courseDto.put("video_files", videoList);
+
+            return courseDto;
+
+        }
+
+        return null;
     }
 
     /**

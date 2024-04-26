@@ -2,8 +2,10 @@ package com.kaiyu.learning.controller;
 
 import com.kaiyu.learning.config.MqttProviderConfig;
 import com.kaiyu.learning.domain.RestResponse;
+import com.kaiyu.learning.domain.dto.PushAnswerDto;
 import com.kaiyu.learning.service.LearningService;
 import com.kaiyu.learning.domain.dto.MqttSendMessageDto;
+import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.Api;
@@ -51,6 +53,19 @@ public class MqttSendController {
                                                             @RequestParam("sceneid")String sceneid){
 
         return  learningService.videoAutoPushActionToDevice(operate,sceneid);
+    }
+
+
+    @PostMapping("/pushAnswerToKeyBoard")
+    @ApiOperation("web端对场景下对键盘群发题目信息")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public RestResponse<Object> pushAnswerToKeyBoard(@RequestBody PushAnswerDto pushAnswerDto){
+
+        if (pushAnswerDto.getSceneid() == null){
+            return RestResponse.validfail("场景id不能为空");
+        }
+
+        return  learningService.pushAnswerToKeyBoard(pushAnswerDto);
     }
 
 

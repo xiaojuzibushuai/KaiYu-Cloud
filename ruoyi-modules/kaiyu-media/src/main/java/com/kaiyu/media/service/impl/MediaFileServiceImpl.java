@@ -331,7 +331,7 @@ public class MediaFileServiceImpl implements MediaFileService {
                             return Long.compare(num1, num2);})
                 .collect(Collectors.toList());
 
-        if(objects.size() != chunkTotal) {
+        if(sortedObjects.size() != chunkTotal) {
             log.debug("分块文件合并失败,分块文件缺失");
             return RestResponse.validfail("分块文件合并失败,分块文件缺失",false);
         }

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.kaiyu.learning.config.MqttProviderConfig;
 import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.domain.TeachplanMedia;
+import com.kaiyu.learning.domain.dto.PushAnswerDto;
 import com.kaiyu.learning.domain.dto.TeachplanDto;
 import com.kaiyu.learning.feignclient.RemoteContentService;
 import com.kaiyu.learning.feignclient.RemoteMediaService;
@@ -13,6 +14,9 @@ import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.JwtUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.utils.SecurityUtils;
+import com.ruoyi.system.api.model.UserVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +31,8 @@ import java.util.*;
  **/
 @Service
 public class LearningServiceImpl implements LearningService {
+
+    private static final Logger log = LoggerFactory.getLogger(LearningServiceImpl.class);
 
     @Autowired
 //    @Qualifier("")
@@ -111,6 +117,8 @@ public class LearningServiceImpl implements LearningService {
             //发送消息
             providerClient.publish(1,true,device.get("topic"), JSON.toJSONString(pushJson));
 
+            log.info("对主题{},发送消息：{}",device.get("topic"),pushJson);
+
         });
 
         //没有ack机制暂时这样
@@ -137,6 +145,41 @@ public class LearningServiceImpl implements LearningService {
         }
 
         return null;
+    }
+
+    @Override
+    public RestResponse<Object> pushAnswerToKeyBoard(PushAnswerDto pushAnswerDto) {
+
+        List<LinkedHashMap<String, String>> result = (List<LinkedHashMap<String, String>>) remoteContentService.getExternalDeviceListBySceneid(pushAnswerDto.getSceneid()).getData();
+
+        if (result == null || result.size() == 0) {
+            return RestResponse.validfail("设备不存在");
+        }
+
+        if(StringUtils.isEmpty(pushAnswerDto.getAnswer())){
+            pushAnswerDto.setAnswer("0");
+        }
+
+
+        result.forEach(device -> {
+            String pushJson = "-"+pushAnswerDto.getParentid()+"-"+pushAnswerDto.getGametype()+pushAnswerDto.getAnswer()
+                    +"-"+pushAnswerDto.getCourseid();
+
+            //发送消息
+            providerClient.publish(1,true,device.get("topic"),pushJson);
+
+            log.info("对主题{},发送消息：{}",device.get("topic"),pushJson);
+
+        });
+
+
+        //没有ack机制暂时这样
+        Map<String, Integer> send_result = new HashMap<>();
+        send_result.put("success_send", result.size());
+        send_result.put("errc_send", 0);
+        send_result.put("send_devices_count", result.size());
+
+        return RestResponse.success(send_result);
     }
 
 

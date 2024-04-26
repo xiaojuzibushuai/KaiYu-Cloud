@@ -38,6 +38,11 @@ public class RemoteContentFallbackFactory implements FallbackFactory<RemoteConte
             }
 
             @Override
+            public RestResponse<Object> getExternalDeviceListBySceneid(String sceneid) {
+                return null;
+            }
+
+            @Override
             public RestResponse<Object> getSceneList(String phone) {
                 return null;
             }

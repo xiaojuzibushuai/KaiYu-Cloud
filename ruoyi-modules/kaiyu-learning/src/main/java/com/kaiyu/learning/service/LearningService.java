@@ -1,6 +1,7 @@
 package com.kaiyu.learning.service;
 
 import com.kaiyu.learning.domain.RestResponse;
+import com.kaiyu.learning.domain.dto.PushAnswerDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface LearningService {
     RestResponse<Object> videoAutoPushActionToDevice(String operate,String sceneid);
 
     List getSceneList(HttpServletRequest request);
+
+    RestResponse<Object> pushAnswerToKeyBoard(PushAnswerDto pushAnswerDto);
 }
