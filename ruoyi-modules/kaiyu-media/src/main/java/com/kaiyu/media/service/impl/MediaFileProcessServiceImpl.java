@@ -66,14 +66,14 @@ public class MediaFileProcessServiceImpl implements MediaFileProcessService {
         }
 
         //处理中 更新状态
-        if (status.equals("4")){
-            LambdaQueryWrapper<MediaProcess> queryWrapperById = new LambdaQueryWrapper<MediaProcess>().eq(MediaProcess::getId, taskId);
-            MediaProcess mediaProcess_u = new MediaProcess();
-            mediaProcess_u.setStatus("4");
-            mediaProcessMapper.update(mediaProcess_u,queryWrapperById);
-            log.debug("更新任务处理状态，任务信息:{}",mediaProcess_u);
-            return ;
-        }
+//        if (status.equals("4")){
+//            LambdaQueryWrapper<MediaProcess> queryWrapperById = new LambdaQueryWrapper<MediaProcess>().eq(MediaProcess::getId, taskId);
+//            MediaProcess mediaProcess_u = new MediaProcess();
+//            mediaProcess_u.setStatus("4");
+//            mediaProcessMapper.update(mediaProcess_u,queryWrapperById);
+//            log.debug("更新任务处理状态，任务信息:{}",mediaProcess_u);
+//            return ;
+//        }
 
         //处理失败
         if(status.equals("3")){

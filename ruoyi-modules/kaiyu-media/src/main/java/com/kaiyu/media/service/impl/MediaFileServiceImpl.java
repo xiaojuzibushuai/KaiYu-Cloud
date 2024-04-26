@@ -8,11 +8,13 @@ import com.kaiyu.media.domain.*;
 import com.kaiyu.media.domain.dto.QueryMediaParamsDto;
 import com.kaiyu.media.domain.dto.UploadFileParamsDto;
 import com.kaiyu.media.domain.dto.UploadFileResultDto;
+import com.kaiyu.media.feignclient.RemoteContentService;
 import com.kaiyu.media.mapper.MediaFilesMapper;
 import com.kaiyu.media.mapper.MediaProcessMapper;
 import com.kaiyu.media.service.MediaFileService;
 import com.kaiyu.media.util.FileTypeUtil;
 import com.kaiyu.media.util.OssUtils;
+import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.exception.KaiYuEducationException;
 import com.ruoyi.common.core.utils.uuid.UUID;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +31,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -54,6 +57,9 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     @Autowired
     MediaProcessMapper mediaProcessMapper;
+
+    @Autowired
+    RemoteContentService remoteContentService;
 
     @Autowired
     OssUtils ossUtils;
@@ -322,7 +328,14 @@ public class MediaFileServiceImpl implements MediaFileService {
 
         //获取合并文件列表
         OSS ossClient = ossUtils.createOSSClient();
-        List<OSSObjectSummary> objects = ossClient.listObjects(video_files, chunkFileFolderPath).getObjectSummaries();
+
+        List<OSSObjectSummary> objects = listOssObjects(ossClient,video_files, chunkFileFolderPath);
+
+        if (objects.isEmpty()){
+            log.debug("分块文件合并失败,OSS分块文件列表获取为空或异常");
+            return RestResponse.validfail("分块文件合并失败,OSS分块文件列表获取为空或异常",false);
+        }
+
         //文件排序
         List<OSSObjectSummary> sortedObjects = objects.stream()
                 .sorted((s1, s2) -> {
@@ -455,6 +468,41 @@ public class MediaFileServiceImpl implements MediaFileService {
 
 
     /**
+     * 获取分页列举OSS所有文件
+     */
+    private List<OSSObjectSummary> listOssObjects(OSS ossClient,String bucketName, String prefix) {
+
+
+        List<OSSObjectSummary> objects = new ArrayList<>();
+
+        try {
+
+            String nextContinuationToken = null;
+            ListObjectsV2Result result = null;
+            int maxKeys = 200;
+
+            do {
+                ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request(bucketName);
+                listObjectsV2Request.setPrefix(prefix);
+                listObjectsV2Request.setMaxKeys(maxKeys);
+                listObjectsV2Request.setContinuationToken(nextContinuationToken);
+
+                result = ossClient.listObjectsV2(listObjectsV2Request);
+
+                objects.addAll(result.getObjectSummaries());
+
+                nextContinuationToken = result.getNextContinuationToken();
+
+            } while (result.isTruncated());
+            return objects;
+        } catch (Exception e) {
+            log.debug("OSS获取分块文件列表失败,异常:{}", e.getMessage());
+            return null;
+        }
+    }
+
+
+    /**
      * 获取文件默认存储目录路径 年/月/日
      *  xiaojuzi
      */
@@ -562,6 +610,23 @@ public class MediaFileServiceImpl implements MediaFileService {
             return null;
         }
         return mediaFiles;
+    }
+
+    @Override
+    public RestResponse deleteMediaFiles(String mediaId) {
+        //先判断是否有课程计划绑定
+        R r = remoteContentService.checkCourseBindMedia(mediaId);
+        if (r==null || (!r.getData().equals("false"))) {
+        log.debug("删除媒资文件失败,mediaId:{},原因:课程计划绑定,不允许删除",mediaId);
+        return RestResponse.success("删除媒资文件失败,mediaId:"+mediaId+",原因:课程计划绑定,不允许删除");
+        }
+
+        int i = mediaFilesMapper.deleteById(mediaId);
+        if (i <= 0) {
+            log.debug("删除媒资文件失败,mediaId:{}",mediaId);
+            KaiYuEducationException.cast("删除媒资文件失败,mediaId:"+mediaId);
+        }
+        return RestResponse.success("删除媒资文件成功!");
     }
 
     /**

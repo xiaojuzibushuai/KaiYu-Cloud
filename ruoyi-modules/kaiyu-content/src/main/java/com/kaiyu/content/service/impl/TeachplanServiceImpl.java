@@ -17,6 +17,7 @@ import com.kaiyu.content.service.ITeachplanService;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.exception.CommonError;
 import com.ruoyi.common.core.exception.KaiYuEducationException;
+import com.ruoyi.common.core.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -252,6 +253,22 @@ public class TeachplanServiceImpl implements ITeachplanService {
         }
 
         return null;
+    }
+
+    @Override
+    public List<TeachplanMedia> getTeachplanByMediaId(String mediaId) {
+        if (StringUtils.isEmpty(mediaId)) {
+            log.info("getTeachplanByMediaId时媒资文件id为空");
+//            KaiYuEducationException.cast(CommonError.REQUEST_NULL);
+            return null;
+        }
+
+        LambdaQueryWrapper<TeachplanMedia> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TeachplanMedia::getMediaId, mediaId);
+
+        List<TeachplanMedia> teachplanMedia = teachplanMediaMapper.selectList(queryWrapper);
+
+        return teachplanMedia;
     }
 
 }

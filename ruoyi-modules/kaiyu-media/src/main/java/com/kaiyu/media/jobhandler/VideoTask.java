@@ -111,8 +111,8 @@ public class VideoTask {
 
             //开始视频处理
             //下载处理文件到服务器上
-            mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "4",
-                    mediaProcess.getFileId(), null, "正在处理任务");
+//            mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "4",
+//                    mediaProcess.getFileId(), null, "正在处理任务");
 
             File mp4File = null;
             try {
@@ -246,8 +246,8 @@ public class VideoTask {
 
                     //开始视频处理
                     //下载处理文件到服务器上
-                    mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "4",
-                            mediaProcess.getFileId(), null, "正在处理任务");
+//                    mediaFileProcessService.saveProcessFinishStatus(mediaProcess.getId(), "4",
+//                            mediaProcess.getFileId(), null, "正在处理任务");
 
                     File mp4File = null;
                     try {

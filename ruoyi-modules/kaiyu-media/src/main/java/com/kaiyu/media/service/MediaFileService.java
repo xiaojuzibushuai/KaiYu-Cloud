@@ -89,4 +89,5 @@ public interface MediaFileService {
 
     MediaFiles getFileById(String mediaId);
 
+    RestResponse deleteMediaFiles(String mediaId);
 }

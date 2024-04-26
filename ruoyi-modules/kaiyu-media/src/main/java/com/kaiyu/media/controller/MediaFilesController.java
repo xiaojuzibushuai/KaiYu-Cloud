@@ -1,9 +1,6 @@
 package com.kaiyu.media.controller;
 
-import com.kaiyu.media.domain.MediaFiles;
-import com.kaiyu.media.domain.MediaProcess;
-import com.kaiyu.media.domain.PageParams;
-import com.kaiyu.media.domain.PageResult;
+import com.kaiyu.media.domain.*;
 import com.kaiyu.media.domain.dto.QueryMediaParamsDto;
 import com.kaiyu.media.domain.dto.UploadFileParamsDto;
 import com.kaiyu.media.domain.dto.UploadFileResultDto;
@@ -18,6 +15,7 @@ import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +59,19 @@ public class MediaFilesController {
 
         return mediaFileService.queryMediaFiles(pageParams, queryMediaParamsDto);
     }
+
+
+    @ApiOperation("媒资列表删除资源接口-暂不删除OSS上文件")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @DeleteMapping("/deleteMediaFiles")
+    public RestResponse deleteMediaFiles(@RequestParam String mediaId) {
+        if (StringUtils.isEmpty(mediaId)) {
+            return RestResponse.success("mediaId不能为空");
+        }
+        return mediaFileService.deleteMediaFiles(mediaId);
+    }
+
+
 
     @ApiOperation("媒资列表查询视频资源接口")
     @RequiresRoles(value = {"admin"}, logical = Logical.OR)

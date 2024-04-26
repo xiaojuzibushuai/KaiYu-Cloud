@@ -92,5 +92,20 @@ public class TeachplanController {
         return R.ok("课程计划解除媒资信息绑定成功");
     }
 
+    @ApiOperation("查询是否有课程计划绑定指定媒资文件")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @PostMapping("/checkCourseBindMedia")
+    public R checkCourseBindMedia(@RequestParam("mediaId") String mediaId) {
+        if (StringUtils.isEmpty(mediaId)) {
+            return R.fail("查询是否有课程计划绑定指定媒资文件,参数不合法");
+        }
+        List<TeachplanMedia> teachplanMedias = teachplanService.getTeachplanByMediaId(mediaId);
+        if (!teachplanMedias.isEmpty()) {
+            return R.ok("true");
+        }
+        return R.ok("false");
+    }
+
+
 
 }

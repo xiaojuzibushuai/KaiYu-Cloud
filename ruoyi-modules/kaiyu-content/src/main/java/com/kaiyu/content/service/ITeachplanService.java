@@ -26,4 +26,6 @@ public interface ITeachplanService {
 
 
     String getTeachplanMediaByCourseId(Long courseId, String episode);
+
+    List<TeachplanMedia> getTeachplanByMediaId(String mediaId);
 }
