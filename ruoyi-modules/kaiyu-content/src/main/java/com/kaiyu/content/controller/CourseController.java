@@ -87,7 +87,7 @@ public class CourseController {
 
     @PostMapping("/getCourseByMultipleConditions")
 //    @InnerAuth
-    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @ApiOperation("查询课程内容列表多条件筛选")
     public PageResult<CourseCategoryVo> getCourseByMultipleConditions(@RequestParam(value = "pageNo", defaultValue = "1") Long pageNo,
                                                                       @RequestParam(value = "pageSize", defaultValue = "10") Long pageSize,
