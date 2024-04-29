@@ -90,4 +90,8 @@ public interface MediaFileService {
     MediaFiles getFileById(String mediaId);
 
     RestResponse deleteMediaFiles(String mediaId);
+
+    RestResponse addMediaProcess(String mediaId,String remark);
+
+    RestResponse deleteMediaFilesUrl(String mediaId, String remark);
 }

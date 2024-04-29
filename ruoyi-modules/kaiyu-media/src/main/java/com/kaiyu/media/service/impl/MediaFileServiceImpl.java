@@ -1,5 +1,8 @@
 package com.kaiyu.media.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -627,6 +630,71 @@ public class MediaFileServiceImpl implements MediaFileService {
             KaiYuEducationException.cast("删除媒资文件失败,mediaId:"+mediaId);
         }
         return RestResponse.success("删除媒资文件成功!");
+    }
+
+    @Override
+    public RestResponse addMediaProcess(String mediaId,String remark) {
+        MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaId);
+        if (mediaFiles == null) {
+            log.debug("添加视频处理任务失败,mediaId:{},原因:媒资文件不存在",mediaId);
+            return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:媒资文件不存在");
+        }
+        if (!(mediaFiles.getFileType().equals("001002"))) {
+            return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:媒资文件不是视频文件");
+        }
+
+        MediaProcess mediaProcess = new MediaProcess();
+        BeanUtils.copyProperties(mediaFiles, mediaProcess);
+        // 未处理状态为1 已处理为2 处理失败为3 处理中为4 xiaojuzi
+        mediaProcess.setStatus("1");
+        //失败次数默认为0
+        mediaProcess.setFailCount(0);
+        //处理remark标注
+        mediaProcess.setRemark(remark);
+        mediaProcess.setUrl("");
+
+        int processInsert = mediaProcessMapper.insert(mediaProcess);
+
+        if (processInsert <= 0) {
+            KaiYuEducationException.cast("保存mp4视频到待处理表失败");
+            return RestResponse.success("保存mp4视频到待处理表失败");
+        }
+
+        return RestResponse.success("添加视频处理任务成功!");
+    }
+
+    @Override
+    public RestResponse deleteMediaFilesUrl(String mediaId, String remark) {
+        MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaId);
+        if (mediaFiles == null) {
+            log.debug("删除媒资文件url失败,mediaId:{},原因:媒资文件不存在",mediaId);
+            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件不存在");
+        }
+        if (!(mediaFiles.getFileType().equals("001002"))) {
+            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件不是视频文件");
+        }
+
+        if (StringUtils.isEmpty(mediaFiles.getUrl())) {
+            log.debug("删除媒资文件url失败,mediaId:{},原因:媒资文件url不存在",mediaId);
+            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件url不存在");
+        }
+
+        //更新媒资文件中的访问 url
+        JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+        List<Object> urlList = jsonArray.stream().filter(item -> {
+            JSONObject data = (JSONObject) item;
+            return !(data.getString("dpi").equals(remark));
+        }).collect(Collectors.toList());
+
+        if (urlList.isEmpty()) {
+            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件url记录只剩一条！");
+        }else {
+
+            mediaFiles.setUrl(JSON.toJSONString(urlList));
+            mediaFilesMapper.updateById(mediaFiles);
+            return RestResponse.success("删除媒资文件url成功!");
+        }
+
     }
 
     /**

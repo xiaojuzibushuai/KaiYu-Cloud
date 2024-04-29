@@ -64,7 +64,7 @@ public class MediaFilesController {
     @ApiOperation("媒资列表删除资源接口-暂不删除OSS上文件")
     @RequiresRoles(value = {"admin"}, logical = Logical.OR)
     @DeleteMapping("/deleteMediaFiles")
-    public RestResponse deleteMediaFiles(@RequestParam String mediaId) {
+    public RestResponse deleteMediaFiles(@RequestParam("mediaId") String mediaId) {
         if (StringUtils.isEmpty(mediaId)) {
             return RestResponse.success("mediaId不能为空");
         }
@@ -140,6 +140,26 @@ public class MediaFilesController {
     public R<List<MediaProcess>> getMediaFilesStatus(@RequestParam("mediaId") String mediaId) {
         List<MediaProcess> mediaProcess = mediaFileProcessService.getMediaFilesStatus(mediaId);
         return R.ok(mediaProcess);
+    }
+
+    @ApiOperation("媒资列表-已上传视频媒资清晰度任务再次提交接口")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @PostMapping("/addMediaProcess")
+    public RestResponse addMediaProcess(@RequestParam("mediaId") String mediaId,@RequestParam("remark")String remark) {
+        if (StringUtils.isEmpty(mediaId)|| StringUtils.isEmpty(remark)) {
+            return RestResponse.success("参数不能为空");
+        }
+        return mediaFileService.addMediaProcess(mediaId,remark);
+    }
+
+    @ApiOperation("媒资列表-已上传视频媒资清晰度列表删除")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @DeleteMapping("/deleteMediaFilesUrl")
+    public RestResponse deleteMediaFilesUrl(@RequestParam("mediaId") String mediaId,@RequestParam("remark")String remark) {
+        if (StringUtils.isEmpty(mediaId)|| StringUtils.isEmpty(remark)) {
+            return RestResponse.success("参数不能为空");
+        }
+        return mediaFileService.deleteMediaFilesUrl(mediaId,remark);
     }
 
 }
