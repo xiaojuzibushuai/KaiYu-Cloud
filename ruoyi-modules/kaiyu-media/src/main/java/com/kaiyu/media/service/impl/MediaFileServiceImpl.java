@@ -7,6 +7,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.JsonObject;
 import com.kaiyu.media.domain.*;
 import com.kaiyu.media.domain.dto.QueryMediaParamsDto;
 import com.kaiyu.media.domain.dto.UploadFileParamsDto;
@@ -641,6 +642,18 @@ public class MediaFileServiceImpl implements MediaFileService {
         }
         if (!(mediaFiles.getFileType().equals("001002"))) {
             return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:媒资文件不是视频文件");
+        }
+
+        if(StringUtils.isNotEmpty(mediaFiles.getUrl())){
+            JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+            List<Object> objectList = jsonArray.stream().filter(item -> {
+                JSONObject data = (JSONObject) item;
+                return (data.getString("dpi").equals(remark));
+            }).collect(Collectors.toList());
+
+            if (objectList.size() > 0){
+                return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:已存在"+remark+"的清晰度");
+            }
         }
 
         MediaProcess mediaProcess = new MediaProcess();
