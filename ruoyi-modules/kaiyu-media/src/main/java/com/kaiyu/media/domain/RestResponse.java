@@ -29,7 +29,7 @@ public class RestResponse<T> {
     }
 
     public RestResponse() {
-        this(0, "success");
+        this(200, "success");
     }
 
     /**
