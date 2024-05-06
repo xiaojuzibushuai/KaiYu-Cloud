@@ -174,6 +174,27 @@ public class UserLoginController {
         return R.ok();
     }
 
+    @PostMapping("/getUserVo")
+    @ApiOperation(value = "远程调用获取用户端用户信息")
+    public R<UserVo> getUserVo(@RequestParam("register_phone") String register_phone){
+        if (StringUtils.isNotEmpty(register_phone))
+        {
+            User userInfo = userLoginService.getUserInfo(register_phone);
+            UserVo userVo = new UserVo();
+            userVo.setId(userInfo.getId());
+            userVo.setUserid(userInfo.getOpenid());
+            userVo.setLoginTime(userInfo.getUptime());
+            userVo.setRegister_phone(userInfo.getRegister_phone());
+            userVo.setIpaddr(userInfo.getIp());
+            userVo.setNickname(userInfo.getNickname());
+            userVo.setAvatar(userInfo.getAvatar());
+            userVo.setSex(userInfo.getSex());
+
+            return R.ok(userVo);
+        }
+        return R.ok();
+    }
+
 
     @PostMapping("/register")
     @ApiOperation(value = "认证中心远程调用用户注册接口")
