@@ -656,6 +656,15 @@ public class MediaFileServiceImpl implements MediaFileService {
             }
         }
 
+        //判断是否已提交过 唯一性
+        LambdaQueryWrapper<MediaProcess> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(MediaProcess::getFileId, mediaId);
+//        queryWrapper.eq(MediaProcess::getRemark, remark);
+        MediaProcess mp = mediaProcessMapper.selectOne(queryWrapper);
+        if (mp != null) {
+            return RestResponse.validfail("添加视频处理任务失败，已存在相同媒资任务处理提交!");
+        }
+
         MediaProcess mediaProcess = new MediaProcess();
         BeanUtils.copyProperties(mediaFiles, mediaProcess);
         // 未处理状态为1 已处理为2 处理失败为3 处理中为4 xiaojuzi
