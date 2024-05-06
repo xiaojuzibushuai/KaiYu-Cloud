@@ -622,7 +622,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         R r = remoteContentService.checkCourseBindMedia(mediaId);
         if (r==null || (!r.getData().equals("false"))) {
         log.debug("删除媒资文件失败,mediaId:{},原因:课程计划绑定,不允许删除",mediaId);
-        return RestResponse.success("删除媒资文件失败,mediaId:"+mediaId+",原因:课程计划绑定,不允许删除");
+        return RestResponse.validfail("mediaId:"+mediaId+",课程计划绑定,不允许删除");
         }
 
         int i = mediaFilesMapper.deleteById(mediaId);
@@ -638,10 +638,10 @@ public class MediaFileServiceImpl implements MediaFileService {
         MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaId);
         if (mediaFiles == null) {
             log.debug("添加视频处理任务失败,mediaId:{},原因:媒资文件不存在",mediaId);
-            return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:媒资文件不存在");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件不存在");
         }
         if (!(mediaFiles.getFileType().equals("001002"))) {
-            return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:媒资文件不是视频文件");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件不是视频文件");
         }
 
         if(StringUtils.isNotEmpty(mediaFiles.getUrl())){
@@ -652,7 +652,7 @@ public class MediaFileServiceImpl implements MediaFileService {
             }).collect(Collectors.toList());
 
             if (objectList.size() > 0){
-                return RestResponse.success("添加视频处理任务失败,mediaId:"+mediaId+",原因:已存在"+remark+"的清晰度");
+                return RestResponse.validfail("mediaId:"+mediaId+",已存在"+remark+"的清晰度");
             }
         }
 
@@ -670,7 +670,7 @@ public class MediaFileServiceImpl implements MediaFileService {
 
         if (processInsert <= 0) {
             KaiYuEducationException.cast("保存mp4视频到待处理表失败");
-            return RestResponse.success("保存mp4视频到待处理表失败");
+            return RestResponse.validfail("保存mp4视频到待处理表失败");
         }
 
         return RestResponse.success("添加视频处理任务成功!");
@@ -681,15 +681,15 @@ public class MediaFileServiceImpl implements MediaFileService {
         MediaFiles mediaFiles = mediaFilesMapper.selectById(mediaId);
         if (mediaFiles == null) {
             log.debug("删除媒资文件url失败,mediaId:{},原因:媒资文件不存在",mediaId);
-            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件不存在");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件不存在");
         }
         if (!(mediaFiles.getFileType().equals("001002"))) {
-            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件不是视频文件");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件不是视频文件");
         }
 
         if (StringUtils.isEmpty(mediaFiles.getUrl())) {
             log.debug("删除媒资文件url失败,mediaId:{},原因:媒资文件url不存在",mediaId);
-            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件url不存在");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件url不存在");
         }
 
         //更新媒资文件中的访问 url
@@ -700,7 +700,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         }).collect(Collectors.toList());
 
         if (urlList.isEmpty()) {
-            return RestResponse.success("删除媒资文件url失败,mediaId:"+mediaId+",原因:媒资文件url记录只剩一条！");
+            return RestResponse.validfail("mediaId:"+mediaId+",媒资文件url记录只剩一条！");
         }else {
 
             mediaFiles.setUrl(JSON.toJSONString(urlList));
