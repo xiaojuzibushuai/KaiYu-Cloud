@@ -1,5 +1,8 @@
 package com.kaiyu.content.controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.kaiyu.content.domain.MediaFiles;
 import com.kaiyu.content.domain.TeachplanMedia;
 import com.kaiyu.content.domain.dto.BindTeachplanMediaDto;
 import com.kaiyu.content.domain.dto.TeachplanDto;
@@ -10,6 +13,7 @@ import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -52,10 +56,11 @@ public class TeachplanController {
 
     @ApiOperation("查询对应课程视频媒资对象的url")
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
-    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}/{dpi}")
+    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}")
     public R getTeachplanMediaByCourseId(@PathVariable("courseId") Long courseId, @PathVariable("episode") String episode,
-                                         @PathVariable("dpi") String dpi) {
-        String url = teachplanService.getTeachplanMediaByCourseId(courseId, episode,dpi);
+                                         @ApiParam(value = "dpi", required = false)
+                                         @RequestParam(value = "dpi",required = false) String dpi) {
+        Object url = teachplanService.getTeachplanMediaByCourseId(courseId, episode,dpi);
 
         return R.ok(url);
 

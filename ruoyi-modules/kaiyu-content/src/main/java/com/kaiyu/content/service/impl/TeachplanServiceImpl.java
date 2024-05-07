@@ -216,10 +216,10 @@ public class TeachplanServiceImpl implements ITeachplanService {
     }
 
     @Override
-    public String getTeachplanMediaByCourseId(Long courseId, String episode, String dpi) {
+    public Object getTeachplanMediaByCourseId(Long courseId, String episode,String dpi) {
 
-        if (courseId == null || episode == null || dpi == null) {
-            log.info("getTeachplanMediaByCourseId时课程id或集数id或清晰度dpi为空");
+        if (courseId == null || episode == null ) {
+            log.info("getTeachplanMediaByCourseId时课程id或集数id为空");
 //            KaiYuEducationException.cast(CommonError.REQUEST_NULL);
             return null;
         }
@@ -247,20 +247,26 @@ public class TeachplanServiceImpl implements ITeachplanService {
 //                    JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
 //                    String flag = (String) JSON.parseObject(mediaFiles.getRemark()).get("episode");
                     if (item.getEpisode().equals(episode)) {
-                        JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
-                        List<Object> objectList = jsonArray.stream().filter(item1 -> {
-                            JSONObject object = (JSONObject) item1;
-                            return object.getString("dpi").equals(dpi);
-                        }).collect(Collectors.toList());
+                        if (StringUtils.isEmpty(dpi)) {
+                            JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+                            return jsonArray;
+                        }else{
+                            JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+                            List<Object> objectList = jsonArray.stream().filter(item1 -> {
+                                JSONObject object = (JSONObject) item1;
+                                return object.getString("dpi").equals(dpi);
+                            }).collect(Collectors.toList());
 
-                        if (objectList.size() > 0){
-                            return objectList.get(0).toString();
+                            if (objectList.size() > 0){
+                                return objectList;
+                            }
+                            return null;
                         }
-                        return null;
                     }
                     }
             }
         }
+
         return null;
     }
 
