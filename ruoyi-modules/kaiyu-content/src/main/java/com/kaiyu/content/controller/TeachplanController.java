@@ -1,8 +1,5 @@
 package com.kaiyu.content.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.kaiyu.content.domain.MediaFiles;
 import com.kaiyu.content.domain.TeachplanMedia;
 import com.kaiyu.content.domain.dto.BindTeachplanMediaDto;
 import com.kaiyu.content.domain.dto.TeachplanDto;
@@ -55,12 +52,12 @@ public class TeachplanController {
 
     @ApiOperation("查询对应课程视频媒资对象的url")
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
-    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}")
-    public R getTeachplanMediaByCourseId(@PathVariable("courseId") Long courseId, @PathVariable("episode") String episode) {
-        String url = teachplanService.getTeachplanMediaByCourseId(courseId, episode);
-        JSONArray jsonArray = JSONArray.parseArray(url);
+    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}/{dpi}")
+    public R getTeachplanMediaByCourseId(@PathVariable("courseId") Long courseId, @PathVariable("episode") String episode,
+                                         @PathVariable("dpi") String dpi) {
+        String url = teachplanService.getTeachplanMediaByCourseId(courseId, episode,dpi);
 
-        return R.ok(jsonArray);
+        return R.ok(url);
 
     }
 

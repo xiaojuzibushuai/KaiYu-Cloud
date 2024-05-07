@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @program: kai-yu-cloud
@@ -215,10 +216,10 @@ public class TeachplanServiceImpl implements ITeachplanService {
     }
 
     @Override
-    public String getTeachplanMediaByCourseId(Long courseId, String episode) {
+    public String getTeachplanMediaByCourseId(Long courseId, String episode, String dpi) {
 
-        if (courseId == null || episode == null) {
-            log.info("getTeachplanMediaByCourseId时课程id或集数id为空");
+        if (courseId == null || episode == null || dpi == null) {
+            log.info("getTeachplanMediaByCourseId时课程id或集数id或清晰度dpi为空");
 //            KaiYuEducationException.cast(CommonError.REQUEST_NULL);
             return null;
         }
@@ -246,12 +247,20 @@ public class TeachplanServiceImpl implements ITeachplanService {
 //                    JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
 //                    String flag = (String) JSON.parseObject(mediaFiles.getRemark()).get("episode");
                     if (item.getEpisode().equals(episode)) {
-                        return mediaFiles.getUrl();
+                        JSONArray jsonArray = JSONArray.parseArray(mediaFiles.getUrl());
+                        List<Object> objectList = jsonArray.stream().filter(item1 -> {
+                            JSONObject object = (JSONObject) item1;
+                            return object.getString("dpi").equals(dpi);
+                        }).collect(Collectors.toList());
+
+                        if (objectList.size() > 0){
+                            return objectList.get(0).toString();
+                        }
+                        return null;
                     }
                     }
             }
         }
-
         return null;
     }
 

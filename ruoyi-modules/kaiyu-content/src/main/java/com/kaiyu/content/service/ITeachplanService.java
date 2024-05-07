@@ -25,7 +25,7 @@ public interface ITeachplanService {
     TeachplanDto findCourseTeachplan(Long courseId);
 
 
-    String getTeachplanMediaByCourseId(Long courseId, String episode);
+    String getTeachplanMediaByCourseId(Long courseId, String episode,String dpi);
 
     List<TeachplanMedia> getTeachplanByMediaId(String mediaId);
 }
