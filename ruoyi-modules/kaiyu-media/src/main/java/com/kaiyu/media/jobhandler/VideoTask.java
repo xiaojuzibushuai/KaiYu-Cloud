@@ -96,7 +96,7 @@ public class VideoTask {
                 }, threadPool));
 
         //清除线程资源
-        threadPool.shutdown();
+//        threadPool.shutdown();
     }
 
 
