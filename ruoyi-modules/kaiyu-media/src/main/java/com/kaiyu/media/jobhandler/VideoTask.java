@@ -215,8 +215,9 @@ public class VideoTask {
         int size = 0;
 
         try {
-            // 查询cpu核心数
-            int corePoolSize = Runtime.getRuntime().availableProcessors();
+            //取一半保证可靠性
+            // 查询cpu核心数 /2 保证可靠性
+            int corePoolSize = (Runtime.getRuntime().availableProcessors())/2;
             // 查询待处理任务
             mediaProcessList = mediaFileProcessService.getMediaProcessList(shardIndex, shardTotal, corePoolSize);
             size = mediaProcessList.size();
