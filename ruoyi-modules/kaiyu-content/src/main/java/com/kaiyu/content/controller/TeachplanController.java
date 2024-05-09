@@ -56,7 +56,7 @@ public class TeachplanController {
 
     @ApiOperation("查询对应课程视频媒资对象的url")
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
-    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}")
+    @PostMapping("/getTeachplanMediaByCourseId/{courseId}/{episode}/{dpi}")
     public R getTeachplanMediaByCourseId(@PathVariable("courseId") Long courseId, @PathVariable("episode") String episode,
                                          @ApiParam(value = "dpi", required = false)
                                          @RequestParam(value = "dpi",required = false) String dpi) {
