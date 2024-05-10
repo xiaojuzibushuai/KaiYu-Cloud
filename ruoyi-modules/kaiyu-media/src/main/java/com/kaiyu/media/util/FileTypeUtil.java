@@ -30,7 +30,12 @@ public class FileTypeUtil {
             return "001002";
         } else if (contentType.startsWith("audio/")) {
             return "001003";
-        } else if (contentType.equals("application/pdf") || contentType.equals("application/msword") || contentType.equals("application/vnd.ms-excel")) {
+        } else if (contentType.equals("application/pdf")
+                || contentType.equals("application/msword")
+                || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                || contentType.equals("application/vnd.ms-excel")
+                || contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        ) {
             return "001004";
         } else {
             return "001005";
