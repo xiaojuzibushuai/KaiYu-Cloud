@@ -53,7 +53,9 @@ public class MqttProviderConfig {
     public void connect(){
         try{
             //创建MQTT客户端对象
-            client = new MqttClient(hostUrl,clientId,new MemoryPersistence());
+            String randomId = MqttClient.generateClientId();
+            String newClientId = clientId + "_" + randomId;
+            client = new MqttClient(hostUrl,newClientId,new MemoryPersistence());
             //连接设置
             MqttConnectOptions options = new MqttConnectOptions();
             //是否清空session，设置false表示服务器会保留客户端的连接记录（订阅主题，qos）,客户端重连之后能获取到服务器在客户端断开连接期间推送的消息
