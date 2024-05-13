@@ -4,6 +4,9 @@ LABEL maintainer=xiaojuzi
 # 安装 OpenJDK 8
 RUN yum install -y java-1.8.0-openjdk
 
+# 安装 openssl
+RUN yum install -y openssl
+
 # 设置 JAVA_HOME 环境变量
 ENV JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk
 ENV PATH=$JAVA_HOME/bin:$PATH
