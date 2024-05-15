@@ -80,6 +80,7 @@ public class CourseAudioController{
             "            \"endTime\": 6,\n" +
             "            \"marks\": \"测试指令\",\n" +
             "            \"timeId\": \"1705653501294\",\n" +
+            "            \"gameUrl\": \"\",\n" +
             "            \"data\": {\n" +
             "                \"gametype\": \"02\",\n" +
             "                \"answer\": \"2\",\n" +
@@ -93,6 +94,7 @@ public class CourseAudioController{
             "            \"endTime\": 6,\n" +
             "            \"marks\": \"测试指令\",\n" +
             "            \"timeId\": \"1705653501294\",\n" +
+            "            \"gameUrl\": \"\",\n" +
             "            \"data\": {\n" +
             "                \"gametype\": \"03\",\n" +
             "                \"answer\": \"1\",\n" +
@@ -124,6 +126,7 @@ public class CourseAudioController{
             "    \"endTime\": 9,\n" +
             "    \"marks\": \"测试指令12\",\n" +
             "    \"timeId\": \"1705653501295\",\n" +
+            "    \"gameUrl\": \"\",\n" +
             "    \"data\": {\n" +
             "        \"gametype\": \"07\",\n" +
             "        \"answer\": \"7\",\n" +

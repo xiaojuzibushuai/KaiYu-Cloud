@@ -24,6 +24,9 @@ public class EditCourseAudioDto {
     @ApiModelProperty("课程脚本")
     private List<HashMap<String,Object>> timePoint;
 
+
+    @ApiModelProperty("课程脚本gameUrl")
+    private String gameUrl;
     @ApiModelProperty("课程脚本timeId")
     private String timeId;
     @ApiModelProperty("课程脚本sendType")

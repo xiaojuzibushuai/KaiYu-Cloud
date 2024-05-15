@@ -258,6 +258,10 @@ public class CourseAudioServiceImpl implements ICourseAudioService {
                         point.put("marks", courseAudioDto.getMarks());
                         updatedCount.incrementAndGet();
                     }
+                    if (courseAudioDto.getGameUrl() != null) {
+                        point.put("gameUrl", courseAudioDto.getGameUrl());
+                        updatedCount.incrementAndGet();
+                    }
                     if (courseAudioDto.getData() != null) {
                         JSONObject dataObject = new JSONObject(courseAudioDto.getData());
                         point.put("data", JSON.parseObject(dataObject .toJSONString()));
