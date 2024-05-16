@@ -53,14 +53,14 @@ public class MqttProviderConfig {
     public void connect(){
         try{
             //创建MQTT客户端对象
-            String randomId = MqttClient.generateClientId();
-            String newClientId = clientId + "_" + randomId;
-            client = new MqttClient(hostUrl,newClientId,new MemoryPersistence());
+//            String randomId = MqttClient.generateClientId();
+//            String newClientId = clientId + "_" + randomId;
+            client = new MqttClient(hostUrl,clientId,new MemoryPersistence());
             //连接设置
             MqttConnectOptions options = new MqttConnectOptions();
             //是否清空session，设置false表示服务器会保留客户端的连接记录（订阅主题，qos）,客户端重连之后能获取到服务器在客户端断开连接期间推送的消息
             //设置为true表示每次连接服务器都是以新的身份
-            options.setCleanSession(true);
+            options.setCleanSession(false);
             //设置连接用户名
             options.setUserName(username);
             //设置连接密码
@@ -78,7 +78,10 @@ public class MqttProviderConfig {
             e.printStackTrace();
         }
     }
-    public void publish(int qos,boolean retained,String topic,String message){
+    public synchronized void publish(int qos,boolean retained,String topic,String message){
+        if (client == null || !client.isConnected()) {
+            connect();
+        }
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setQos(qos);
         mqttMessage.setRetained(retained);
