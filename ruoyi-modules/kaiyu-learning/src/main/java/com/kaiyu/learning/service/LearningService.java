@@ -22,4 +22,6 @@ public interface LearningService {
     List getSceneList(HttpServletRequest request);
 
     RestResponse<Object> pushAnswerToKeyBoard(PushAnswerDto pushAnswerDto);
+
+    RestResponse<Object> videoAutoPushDatToDevice(String url, String sceneid);
 }

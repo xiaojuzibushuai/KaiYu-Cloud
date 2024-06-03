@@ -25,24 +25,36 @@ spring:
         - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
 
   # MQTT配置信息
-  mqtt:
-    # MQTT服务地址，端口号默认11883，如果有多个，用逗号隔开
-    url: tcp://101.201.75.83:1883
-    # 用户名
-    username: admin
-    # 密码
-    password: AsKdRaWbo20171117
-    # 客户端id(不能重复)
-    client:
-      id: provider-kaiyu-learning
-    # MQTT默认的消息推送主题，实际可在调用接口是指定
-    default:
-      topic: iot/2/default_topic
+#  mqtt:
+#    # MQTT服务地址，端口号默认11883，如果有多个，用逗号隔开
+#    url: tcp://101.201.75.83:1883
+#    # 用户名
+#    username: admin
+#    # 密码
+#    password: AsKdRaWbo20171117
+#    # 客户端id(不能重复)
+#    client:
+#      id: provider-kaiyu-learning
+#    # MQTT默认的消息推送主题，实际可在调用接口是指定
+#    default:
+#      topic: iot/2/default_topic
 
 # 开启sql日志 xiaojuzi
 #mybatis-plus:
 #  configuration:
 #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+#配置在配置中心  xiaojuzi
+#aliyun:
+#  oss:
+#    cdn_oss_url: http://cdn.course.v5ky.com
+#    accessKeyId: LTAI5tQEh2XoHCLNQV1zGUNt
+#    accessKeySecret: 905YkQEFw7kdiPLEv2clz6Xb7VrySG
+#    endpoint: http://oss-cn-wuhan-lr.aliyuncs.com
+#    files:
+#      bucketName: kaiyu-files-resource
+#    videofiles:
+#      bucketName: kaiyu-video-resource
 
 
 

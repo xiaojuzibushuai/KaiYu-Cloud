@@ -38,12 +38,12 @@ public class MqttSendController {
     LearningService learningService;
 
 
-//    @PostMapping("/pushDat")
-//    @ApiOperation("预制课发送接口")
-//    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
-    public RestResponse<Object> videoAutoPushDatToDevice(){
-
-        return RestResponse.success();
+    @PostMapping("/pushDat")
+    @ApiOperation("预制课发送接口")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public RestResponse<Object> videoAutoPushDatToDevice(@RequestParam("url")String url,
+                                                         @RequestParam("sceneid")String sceneid){
+        return learningService.videoAutoPushDatToDevice(url, sceneid);
     }
 
     @PostMapping("/pushAction")
