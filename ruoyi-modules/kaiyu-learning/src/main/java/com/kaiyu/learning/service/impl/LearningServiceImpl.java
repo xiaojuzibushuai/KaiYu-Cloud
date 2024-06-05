@@ -276,6 +276,80 @@ public class LearningServiceImpl implements LearningService {
         return RestResponse.success(send_result);
     }
 
+    @Override
+    public RestResponse<Object> videoAutoPushFileDatToDevice(byte[] upload, String sceneid) {
+
+        String s1 = null;
+        String fileName = null;
+        try {
+            Path tempDirectory = Files.createTempDirectory(UUID.randomUUID().toString());
+            String temp = tempDirectory.toString().replace("\\", "/");
+            fileName = temp.substring(temp.lastIndexOf("/") + 1);
+
+            //写入本地
+            File datFile = new File(temp, fileName + ".dat");
+            try (FileOutputStream fos = new FileOutputStream(datFile)) {
+                fos.write(upload);
+            }
+            // 创建并写入 .lrc 文件
+            File lrcFile = new File(temp, fileName + ".lrc");
+            try (FileOutputStream fos = new FileOutputStream(lrcFile)) {
+                fos.write("000000000000000000000000000000000".getBytes());
+            }
+
+            //将文件上传供下载访问
+            String objectName1 = "dat/h5/" +fileName +"/" +fileName + ".dat";
+            String objectName2 = "dat/h5/" +fileName +"/" +fileName + ".lrc";
+            s1 = learningOssUtils.simpleUploadFile(objectName1,temp + "/" + fileName + ".dat","kaiyu-files-resource");
+            String s2 = learningOssUtils.simpleUploadFile(objectName2,temp + "/" + fileName + ".lrc","kaiyu-files-resource");
+            if(s1 == null || s2 == null){
+                return RestResponse.validfail("上传dat或lrc文件过程出错");
+            }
+
+        }catch (IOException e) {
+            KaiYuEducationException.cast("写入或上传文件过程出错:" + e.getMessage());
+        }
+
+        //获取场景下的设备
+        List<LinkedHashMap<String, String>> result = (List<LinkedHashMap<String, String>>) remoteContentService.getDeviceListBySceneid(sceneid).getData();
+
+        if (result == null || result.size() == 0) {
+            return RestResponse.validfail("设备不存在");
+        }
+
+        String sendFileName = fileName;
+        String sendUrl = s1.substring(0,s1.lastIndexOf("/"));
+
+        result.forEach(device -> {
+            Map<String, Object> pushJson = new HashMap<>();
+            pushJson.put("type", "2");
+            pushJson.put("deviceid", device.get("deviceid"));
+            pushJson.put("fromuser", "");
+
+            Map<String, Object> message = new HashMap<>();
+            message.put("arg", sendFileName);
+            message.put("url", sendUrl);
+
+            pushJson.put("message", message);
+
+            //发送消息
+            providerClient.publish(1,true,device.get("topic"), JSON.toJSONString(pushJson));
+
+            log.info("对主题{},发送消息：{}",device.get("topic"),pushJson);
+
+        });
+
+        //没有ack机制暂时这样
+        Map<String, Integer> send_result = new HashMap<>();
+        send_result.put("success_send", result.size());
+        send_result.put("errc_send", 0);
+        send_result.put("send_devices_count", result.size());
+
+
+        return RestResponse.success(send_result);
+
+    }
+
 
     public boolean getDownloadFileToLocal(String url, String fileDirectory, String fileName) {
         try {

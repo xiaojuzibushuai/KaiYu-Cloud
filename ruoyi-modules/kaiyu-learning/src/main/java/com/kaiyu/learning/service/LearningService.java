@@ -24,4 +24,6 @@ public interface LearningService {
     RestResponse<Object> pushAnswerToKeyBoard(PushAnswerDto pushAnswerDto);
 
     RestResponse<Object> videoAutoPushDatToDevice(String url, String sceneid);
+
+    RestResponse<Object> videoAutoPushFileDatToDevice(byte[] bytes, String sceneid);
 }

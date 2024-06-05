@@ -5,6 +5,7 @@ import com.kaiyu.learning.domain.RestResponse;
 import com.kaiyu.learning.domain.dto.PushAnswerDto;
 import com.kaiyu.learning.service.LearningService;
 import com.kaiyu.learning.domain.dto.MqttSendMessageDto;
+import com.ruoyi.common.core.exception.KaiYuEducationException;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.annotation.Logical;
 import com.ruoyi.common.security.annotation.RequiresRoles;
@@ -12,7 +13,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * @program: kai-yu-cloud
@@ -66,6 +71,23 @@ public class MqttSendController {
         }
 
         return  learningService.pushAnswerToKeyBoard(pushAnswerDto);
+    }
+
+    @PostMapping(value = "/pushFile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation("预制课文件接收发送接口")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public RestResponse<Object> videoAutoPushFileDatToDevice(@RequestPart("filedata") MultipartFile upload,
+                                                             @RequestParam("sceneid")String sceneid){
+
+        if (upload.isEmpty() || sceneid == null) {
+            return RestResponse.validfail("参数不合法");
+        }
+        try {
+            return learningService.videoAutoPushFileDatToDevice(upload.getBytes(), sceneid);
+        } catch (IOException e) {
+            KaiYuEducationException.cast("预制课文件接收发送接口过程出错:" + e.getMessage());
+        }
+        return RestResponse.validfail("预制课文件接收发送接口过程出错");
     }
 
 
