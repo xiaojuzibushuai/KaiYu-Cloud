@@ -17,6 +17,7 @@
         <module>kaiyu-content</module>
         <module>kaiyu-media</module>
         <module>kaiyu-learning</module>
+        <module>kaiyu-order</module>
     </modules>
 
     <artifactId>ruoyi-modules</artifactId>
