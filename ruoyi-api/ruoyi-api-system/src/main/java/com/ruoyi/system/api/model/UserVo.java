@@ -16,6 +16,11 @@ import java.util.Set;
 @ToString
 public class UserVo {
 
+    private Long id;
+    private String email;
+    private int sex;
+    private String nickname;
+
     private String userid;
     private String username;
     private LocalDateTime loginTime;

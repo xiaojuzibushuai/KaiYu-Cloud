@@ -13,6 +13,7 @@
         <module>kaiyu-api-content</module>
         <module>kaiyu-api-media</module>
         <module>kaiyu-api-learning</module>
+        <module>kaiyu-api-order</module>
     </modules>
 
     <artifactId>ruoyi-api</artifactId>
