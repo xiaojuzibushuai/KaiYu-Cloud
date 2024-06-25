@@ -18,7 +18,13 @@ import org.springframework.context.annotation.PropertySource;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
 import java.security.PrivateKey;
+import java.security.Signature;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
+import java.util.Base64;
+import java.util.Map;
 
 @Configuration
 @PropertySource("classpath:wxpay.properties") //读取配置文件
@@ -134,6 +140,30 @@ public class WxPayConfig {
         log.info("== getWxPayNoSignClient END ==");
 
         return httpClient;
+    }
+
+
+
+    public String generateSign(long timestamp ,String nonceStr,String packageVal) throws Exception {
+
+        String message =  appid + "\n"
+                + timestamp + "\n"
+                + nonceStr + "\n"
+                + packageVal + "\n";
+
+        Base64.Encoder base64Encoder = Base64.getEncoder();
+
+        // 初始化Signature并设置为SHA256withRSA算法
+        Signature signature = Signature.getInstance("SHA256withRSA");
+
+        PrivateKey privateKey = getPrivateKey(privateKeyPath);
+
+        signature.initSign(privateKey);
+        signature.update(message.getBytes(StandardCharsets.UTF_8));
+
+        // 生成签名
+        byte[] signBytes = signature.sign();
+        return base64Encoder.encodeToString(signBytes);
     }
 
 }

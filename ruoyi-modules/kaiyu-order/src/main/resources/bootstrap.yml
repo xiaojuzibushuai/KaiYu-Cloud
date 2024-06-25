@@ -56,7 +56,7 @@ xxl:
       logretentiondays: 30
     accessToken: default_token
 pay:
-  qrcodeurl: http://127.0.0.1:9209/order/requestpay?payNo=%s
+  qrcodeurl: http://127.0.0.1:8080/order/requestpay?payNo=%s
 
 #elegent:
 #  pay:

@@ -1,19 +1,13 @@
 package com.kaiyu.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.google.gson.Gson;
-import com.kaiyu.order.KaiyuOrderApplication;
 import com.kaiyu.order.config.WxPayConfig;
 import com.kaiyu.order.domain.Orders;
 import com.kaiyu.order.domain.OrdersGoods;
 import com.kaiyu.order.domain.PayRecord;
 import com.kaiyu.order.domain.dto.AddOrderDto;
-import com.kaiyu.order.domain.dto.PayRecordDto;
 import com.kaiyu.order.domain.dto.PayStatusDto;
-import com.kaiyu.order.enums.OrderStatus;
 import com.kaiyu.order.enums.wxpay.WxApiType;
 import com.kaiyu.order.enums.wxpay.WxNotifyType;
 import com.kaiyu.order.enums.wxpay.WxTradeState;
@@ -23,11 +17,10 @@ import com.kaiyu.order.mapper.OrdersMapper;
 import com.kaiyu.order.mapper.PayRecordMapper;
 import com.kaiyu.order.service.OrderService;
 import com.kaiyu.order.util.IdWorkerUtils;
-import com.kaiyu.order.util.QRCodeUtil;
-import com.ruoyi.common.core.domain.R;
+import com.kaiyu.order.util.NonceUtil;
 import com.ruoyi.common.core.exception.KaiYuEducationException;
 import com.ruoyi.common.core.utils.StringUtils;
-import com.ruoyi.system.api.model.UserVo;
+import com.wechat.pay.contrib.apache.httpclient.auth.Signer;
 import com.wechat.pay.contrib.apache.httpclient.util.AesUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -46,15 +39,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.Signature;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @program: KaiYu-Cloud
@@ -160,11 +153,12 @@ public class OrderServiceImpl implements OrderService {
 
     public PayRecord createPayRecord(Orders orders) {
         if (orders == null) {
-        KaiYuEducationException.cast("订单不存在");
+            KaiYuEducationException.cast("订单不存在");
         }
         if ("500002".equals(orders.getStatus())) {
             KaiYuEducationException.cast("订单已支付");
         }
+
         PayRecord payRecord = new PayRecord();
         payRecord.setPayNo(IdWorkerUtils.getInstance().nextId());
         payRecord.setOrderId(orders.getId());
@@ -232,6 +226,20 @@ public class OrderServiceImpl implements OrderService {
             if (statusCode == 200) { //处理成功
                 log.info("requestVxPayApi success,return body = " + bodyAsString);
                 result = (Map)JSON.parseObject(bodyAsString, Map.class);
+
+                //返回前端参数
+                long timestamp = Instant.now().getEpochSecond();
+                String nonceStr = NonceUtil.createNonce(32);
+                String prepayId = result.get("prepay_id").toString();
+                String packageVal = "prepay_id=" + prepayId;
+                String sign = wxPayConfig.generateSign(timestamp,nonceStr,packageVal);
+
+                ((Map)result).put("timeStamp", timestamp);
+                ((Map)result).put("nonceStr", nonceStr);
+                ((Map)result).put("package", packageVal);
+                ((Map)result).put("signType", "RSA");
+                ((Map)result).put("paySign", sign);
+
                 ((Map)result).put("code", "SUCCESS");
             } else if (statusCode == 204) { //处理成功，无返回Body
                 log.info("requestPayApi success");
