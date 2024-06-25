@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
  **/
 @Data
 @ToString
-@ApiModel("课程表")
+@ApiModel("用户表")
 @TableName("user")
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -44,6 +44,7 @@ public class User implements Serializable {
     private String password;
     private String avatar;
 
+    private int role_id;
 
 
 

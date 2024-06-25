@@ -45,5 +45,7 @@ public class User implements Serializable {
     private String password;
     private String avatar;
 
+    private int role_id;
+
 
 }
