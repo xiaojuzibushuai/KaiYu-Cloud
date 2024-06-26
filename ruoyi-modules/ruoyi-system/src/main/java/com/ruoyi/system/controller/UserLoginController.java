@@ -213,4 +213,27 @@ public class UserLoginController {
     }
 
 
-}
+    @PostMapping("/updateAuditUserStatus")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @ApiOperation(value = "后台管理-修改待审核用户状态")
+    public R updateAuditUserStatus(@RequestParam("auditUserId")Long auditUserId){
+        userLoginService.updateAuditUserStatus(auditUserId);
+        return R.ok("修改待审核用户状态成功！");
+    }
+    @DeleteMapping("/deleteAuditUserStatus")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @ApiOperation(value = "后台管理-拒绝此次待审核用户申请")
+    public R deleteAuditUserStatus(@RequestParam("auditUserId")Long auditUserId){
+        userLoginService.deleteAuditUserStatus(auditUserId);
+        return R.ok("拒绝此次待审核用户申请成功！");
+    }
+    @GetMapping("/getAllAuditUser")
+    @RequiresRoles(value = {"admin"}, logical = Logical.OR)
+    @ApiOperation(value = "后台管理-获取所有待审核用户")
+    public R getAllAuditUser(){
+
+        return R.ok(userLoginService.getAllAuditUser());
+    }
+
+
+    }

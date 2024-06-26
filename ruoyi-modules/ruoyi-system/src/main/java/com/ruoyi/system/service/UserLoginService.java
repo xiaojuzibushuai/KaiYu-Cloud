@@ -4,6 +4,9 @@ package com.ruoyi.system.service;
 import com.ruoyi.system.api.domain.AdminUser;
 import com.ruoyi.system.api.domain.User;
 import com.ruoyi.system.api.model.RegisterDto;
+import com.ruoyi.system.api.domain.AuditUser;
+
+import java.util.List;
 
 /**
  * @program: kai-yu-cloud
@@ -25,4 +28,10 @@ public interface UserLoginService {
     User smsLogin(String register_phone, String code);
 
     User register(RegisterDto registerDto);
+
+    List<AuditUser> getAllAuditUser();
+
+    void updateAuditUserStatus(Long auditUserId);
+
+    void deleteAuditUserStatus(Long auditUserId);
 }
