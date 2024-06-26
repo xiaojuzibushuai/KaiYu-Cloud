@@ -20,7 +20,7 @@ public interface OrderService {
      * @param addOrderDto   订单信息
      * @return  支付交易记录
      */
-    Map<String, Object> createOrder(AddOrderDto addOrderDto);
+    Map<String, Object> createOrder(AddOrderDto addOrderDto,String tradeType);
 
     /**
      * 根据支付单号查询支付交易记录
@@ -38,4 +38,5 @@ public interface OrderService {
      * @param bodyMap
      */
     void processOrder(Map<String, Object> bodyMap) throws GeneralSecurityException;
+
 }

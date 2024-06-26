@@ -8,7 +8,9 @@ import com.kaiyu.order.domain.dto.PayRecordDto;
 import com.kaiyu.order.domain.dto.PayStatusDto;
 import com.kaiyu.order.service.OrderService;
 import com.kaiyu.order.util.HttpUtils;
+import com.kaiyu.order.util.QRCodeUtil;
 import com.kaiyu.order.util.WechatPay2ValidatorForRequest;
+import com.ruoyi.common.core.exception.KaiYuEducationException;
 import com.ruoyi.common.core.utils.JwtUtils;
 import com.ruoyi.common.core.utils.StringUtils;
 import com.ruoyi.common.security.annotation.Logical;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -56,12 +59,12 @@ public class OrderController {
      */
 
     //TODO 未加权限
-    @ApiOperation("创建订单")
+    @ApiOperation("创建jsapi订单")
 //    @RequiresRoles(value = {"common"}, logical = Logical.OR)
     @PostMapping("/wxpay/jsapi/requestPay")
-    public RestResponse requestPay(@RequestBody AddOrderDto addOrderDto){
+    public RestResponse jsapiPay(@RequestBody AddOrderDto addOrderDto){
         if (StringUtils.isNotEmpty(addOrderDto.getOpenId())){
-            Map<String, Object> result = orderService.createOrder(addOrderDto);
+            Map<String, Object> result = orderService.createOrder(addOrderDto,"jsapi");
             if (result == null){
                 return RestResponse.validfail("请求支付API失败!请稍后重试！");
             }
@@ -69,6 +72,29 @@ public class OrderController {
         }
         return RestResponse.validfail("参数非法，没有指定付款人！");
     }
+
+    @ApiOperation("创建native订单")
+//    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+    @PostMapping("/wxpay/native/requestPay")
+    public RestResponse nativePay(@RequestBody AddOrderDto addOrderDto){
+        if (StringUtils.isNotEmpty(addOrderDto.getOpenId())){
+            Map<String, Object> result = orderService.createOrder(addOrderDto,"native");
+            if (result == null){
+                return RestResponse.validfail("请求支付API失败!请稍后重试！");
+            }
+            // 生成二维码
+            try {
+                String qrCode = new QRCodeUtil().createQRCode(result.get("code_url").toString(), 200, 200);
+                result.put("qrCode", qrCode);
+            } catch (IOException e) {
+                KaiYuEducationException.cast("生成二维码出错");
+            }
+            return RestResponse.success(result);
+        }
+        return RestResponse.validfail("参数非法，没有指定付款人！");
+    }
+
+
 
     //TODO 未加权限
     @ApiOperation("查询微信支付结果")

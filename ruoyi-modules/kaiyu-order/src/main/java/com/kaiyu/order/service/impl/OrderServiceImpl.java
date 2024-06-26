@@ -88,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
     private static final String LOCK_KEY_PREFIX = "vx_pay_callback_lock:";
 
     @Override
-    public Map<String, Object> createOrder(AddOrderDto addOrderDto) {
+    public Map<String, Object> createOrder(AddOrderDto addOrderDto,String tradeType) {
 
         //1、创建订单
         Orders orders = saveOrders(addOrderDto);
@@ -97,13 +97,15 @@ public class OrderServiceImpl implements OrderService {
         //3、请求支付API
         Map map= null;
         try {
-             map = requestPayApi(payRecord);
+            Map<String, Object> attach = (Map<String, Object>) addOrderDto.getAttach();
+            map = requestPayApi(payRecord,tradeType,attach);
         }catch (Exception var1){
             log.error("请求支付API失败",var1);
             KaiYuEducationException.cast("请求支付API失败");
         }
         return map;
     }
+
 
     /**
      * 保存订单信息，保存订单表和订单明细表
@@ -175,7 +177,7 @@ public class OrderServiceImpl implements OrderService {
         return payRecord;
     }
 
-    public Map requestPayApi(PayRecord payRecord) throws Exception{
+    public Map requestPayApi(PayRecord payRecord,String tradeType,Map<String, Object> attach) throws Exception{
 
         if (payRecord == null) {
             KaiYuEducationException.cast("订单支付记录不存在");
@@ -184,7 +186,15 @@ public class OrderServiceImpl implements OrderService {
             KaiYuEducationException.cast("订单已支付");
         }
 
-        HttpPost httpPost = new HttpPost(wxPayConfig.getDomain().concat(WxApiType.JSAPI_PAY.getType()));
+        HttpPost httpPost = null;
+
+        if ("jsapi".equals(tradeType)){
+            httpPost = new HttpPost(wxPayConfig.getDomain().concat(WxApiType.JSAPI_PAY.getType()));
+        }else if ("native".equals(tradeType)){
+            httpPost = new HttpPost(wxPayConfig.getDomain().concat(WxApiType.NATIVE_PAY.getType()));
+        }else {
+            httpPost = new HttpPost(wxPayConfig.getDomain().concat(WxApiType.JSAPI_PAY.getType()));
+        }
 
         // 请求body参数
         Map<String, Object> paramsMap = new HashMap<String, Object>();
@@ -194,16 +204,22 @@ public class OrderServiceImpl implements OrderService {
         paramsMap.put("out_trade_no", payRecord.getPayNo().toString());
         paramsMap.put("notify_url", wxPayConfig.getNotifyDomain().concat(WxNotifyType.JSAPI_NOTIFY.getType()));
 
-
         paramsMap.put("amount", new HashMap<String, Object>(){{
             put("total", payRecord.getTotalPrice());
             put("currency", "CNY");
 
         }});
 
-        paramsMap.put("payer", new HashMap<String, Object>() {{
-            put("openid", payRecord.getUserId());
-        }});
+
+        if ("jsapi".equals(tradeType)){
+            paramsMap.put("payer", new HashMap<String, Object>() {{
+                put("openid", payRecord.getUserId());
+            }});
+        }
+
+        if (!attach.isEmpty()){
+            paramsMap.put("attach", JSON.toJSONString(attach));
+        }
 
         //将参数转换成json字符串
         String jsonParams = JSON.toJSONString(paramsMap);
@@ -227,18 +243,20 @@ public class OrderServiceImpl implements OrderService {
                 log.info("requestVxPayApi success,return body = " + bodyAsString);
                 result = (Map)JSON.parseObject(bodyAsString, Map.class);
 
-                //返回前端参数
-                long timestamp = Instant.now().getEpochSecond();
-                String nonceStr = NonceUtil.createNonce(32);
-                String prepayId = result.get("prepay_id").toString();
-                String packageVal = "prepay_id=" + prepayId;
-                String sign = wxPayConfig.generateSign(timestamp,nonceStr,packageVal);
+                if ("jsapi".equals(tradeType)){
+                    //返回前端参数
+                    long timestamp = Instant.now().getEpochSecond();
+                    String nonceStr = NonceUtil.createNonce(32);
+                    String prepayId = result.get("prepay_id").toString();
+                    String packageVal = "prepay_id=" + prepayId;
+                    String sign = wxPayConfig.generateSign(timestamp,nonceStr,packageVal);
 
-                ((Map)result).put("timeStamp", timestamp);
-                ((Map)result).put("nonceStr", nonceStr);
-                ((Map)result).put("package", packageVal);
-                ((Map)result).put("signType", "RSA");
-                ((Map)result).put("paySign", sign);
+                    ((Map)result).put("timeStamp", timestamp);
+                    ((Map)result).put("nonceStr", nonceStr);
+                    ((Map)result).put("package", packageVal);
+                    ((Map)result).put("signType", "RSA");
+                    ((Map)result).put("paySign", sign);
+                }
 
                 ((Map)result).put("code", "SUCCESS");
             } else if (statusCode == 204) { //处理成功，无返回Body
@@ -418,7 +436,6 @@ public class OrderServiceImpl implements OrderService {
             }
         }
     }
-
 
     public Map queryPayResultFromVxPay(String payNo) throws Exception {
 

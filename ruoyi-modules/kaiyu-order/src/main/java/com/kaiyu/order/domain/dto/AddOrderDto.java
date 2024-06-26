@@ -3,6 +3,9 @@ package com.kaiyu.order.domain.dto;
 import lombok.Data;
 import lombok.ToString;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @program: KaiYu-Cloud
  * @description: 创建商品订单
@@ -47,4 +50,10 @@ public class AddOrderDto {
      * 外部系统业务id
      */
     private String outBusinessId;
+
+    /**
+     * 自定义数据说明
+     * {"toRechargePhone":[18707281085,18707281085],"":"",}
+     */
+    private Map<String, Object> attach = new HashMap<>();
 }

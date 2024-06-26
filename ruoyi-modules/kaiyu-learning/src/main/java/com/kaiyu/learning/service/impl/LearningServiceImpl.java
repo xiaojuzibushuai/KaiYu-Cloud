@@ -28,9 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -344,7 +342,6 @@ public class LearningServiceImpl implements LearningService {
         send_result.put("success_send", result.size());
         send_result.put("errc_send", 0);
         send_result.put("send_devices_count", result.size());
-
 
         return RestResponse.success(send_result);
 
