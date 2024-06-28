@@ -1,6 +1,7 @@
 package com.kaiyu.learning.controller;
 
 import com.kaiyu.learning.domain.RestResponse;
+import com.kaiyu.learning.service.CourseTablesService;
 import com.kaiyu.learning.service.LearningService;
 import com.ruoyi.common.core.domain.R;
 import com.ruoyi.common.core.utils.JwtUtils;
@@ -33,6 +34,10 @@ public class MyLearningController {
     @Autowired
     LearningService learningService;
 
+    @Autowired
+    CourseTablesService courseTablesService;
+
+
     @ApiOperation("获取媒资视频url")
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @GetMapping("/getVideo/{courseId}/{mediaId}")
@@ -57,6 +62,15 @@ public class MyLearningController {
         return RestResponse.success(sceneList);
 
         }
+
+
+//    @ApiOperation("查询用户人脸是否有课程资格")
+//    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+//    @PostMapping("/checkUser")
+//    public RestResponse<Object> getSceneList(HttpServletRequest request) {
+//
+//    }
+
 
 
     }

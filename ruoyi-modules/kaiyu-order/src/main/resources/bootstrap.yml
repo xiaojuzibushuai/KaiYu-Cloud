@@ -29,6 +29,11 @@ spring:
         # 共享配置
         shared-configs:
         - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        #rabbitMQ配置 xiaojuzi
+        - data-id: rabbitmq-${spring.profiles.active}.yaml
+          group: DEFAULT_GROUP
+          refresh: true
+
 #配置在配置中心 此处删除 xiaojuzi
 #aliyun:
 #  oss:
@@ -57,6 +62,7 @@ xxl:
     accessToken: default_token
 pay:
   qrcodeurl: http://127.0.0.1:8080/order/requestpay?payNo=%s
+
 
 #elegent:
 #  pay:

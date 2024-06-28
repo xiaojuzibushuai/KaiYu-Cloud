@@ -95,6 +95,12 @@ public class UserLoginServiceImpl implements UserLoginService {
     }
 
     @Override
+    public User getUserInfoByOpenId(String openId) {
+        User user = userMapper.getUserInfoByOpenId(openId);
+        return user;
+    }
+
+    @Override
     public User smsLogin(String register_phone, String code) {
         // 判断验证码是否正确
         String smsCode = (String) redisTemplate.opsForValue().get("SMS_WEB_LOGIN_CODE_" + register_phone);

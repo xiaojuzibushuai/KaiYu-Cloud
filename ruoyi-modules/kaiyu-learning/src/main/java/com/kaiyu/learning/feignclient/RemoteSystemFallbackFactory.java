@@ -25,6 +25,10 @@ public class RemoteSystemFallbackFactory implements FallbackFactory<RemoteSystem
         log.error("系统服务调用失败:{}", cause.getMessage());
         return new RemoteSystemService() {
 
+            @Override
+            public R<UserVo> getUserInfoByOpenId(String openId) {
+                return null;
+            }
         };
     }
 }

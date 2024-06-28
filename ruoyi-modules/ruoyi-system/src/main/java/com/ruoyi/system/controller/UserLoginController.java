@@ -195,6 +195,27 @@ public class UserLoginController {
         return R.ok();
     }
 
+    @PostMapping("/getUserVoByOpenId")
+    @ApiOperation(value = "通过openId远程调用获取用户端用户信息")
+    public R<UserVo> getUserInfoByOpenId(@RequestParam("openId") String openId){
+        if (StringUtils.isNotEmpty(openId))
+        {
+            User userInfo = userLoginService.getUserInfoByOpenId(openId);
+            UserVo userVo = new UserVo();
+            userVo.setId(userInfo.getId());
+            userVo.setUserid(userInfo.getOpenid());
+            userVo.setLoginTime(userInfo.getUptime());
+            userVo.setRegister_phone(userInfo.getRegister_phone());
+            userVo.setIpaddr(userInfo.getIp());
+            userVo.setNickname(userInfo.getNickname());
+            userVo.setAvatar(userInfo.getAvatar());
+            userVo.setSex(userInfo.getSex());
+
+            return R.ok(userVo);
+        }
+        return R.ok();
+    }
+
 
     @PostMapping("/register")
     @ApiOperation(value = "认证中心远程调用用户注册接口")

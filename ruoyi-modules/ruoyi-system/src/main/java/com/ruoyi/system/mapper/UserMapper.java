@@ -18,5 +18,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     public User getUserInfo(@Param("register_phone") String register_phone);
 
+    public User getUserInfoByOpenId(@Param("openId") String openId);
+
 
 }

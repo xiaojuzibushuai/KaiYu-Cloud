@@ -25,6 +25,8 @@ public interface UserLoginService {
 
     User getUserInfo(String register_phone);
 
+    User getUserInfoByOpenId(String openId);
+
     User smsLogin(String register_phone, String code);
 
     User register(RegisterDto registerDto);

@@ -24,4 +24,6 @@ public class PayStatusDto {
     String app_id;
     //total_amount
     String total_amount;
+    //附加信息
+    String attach;
 }

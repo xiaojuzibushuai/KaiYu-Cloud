@@ -23,6 +23,9 @@ spring:
         # 共享配置
         shared-configs:
         - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+        - data-id: rabbitmq-${spring.profiles.active}.yaml
+          group: DEFAULT_GROUP
+          refresh: true
 
   # MQTT配置信息
 #  mqtt:

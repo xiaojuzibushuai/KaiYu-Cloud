@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * MybatisPlus配置
  */
 @Configuration
-@MapperScan("com.kaiyu.media.mapper")
+@MapperScan("com.kaiyu.learning.mapper")
 public class MybatisPlusConfig {
 
 

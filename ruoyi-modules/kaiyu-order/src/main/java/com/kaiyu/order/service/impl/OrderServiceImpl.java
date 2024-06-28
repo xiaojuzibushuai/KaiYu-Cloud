@@ -2,7 +2,9 @@ package com.kaiyu.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.kaiyu.order.config.PayNotifyConfig;
 import com.kaiyu.order.config.WxPayConfig;
+import com.kaiyu.order.domain.MqMessage;
 import com.kaiyu.order.domain.Orders;
 import com.kaiyu.order.domain.OrdersGoods;
 import com.kaiyu.order.domain.PayRecord;
@@ -15,6 +17,7 @@ import com.kaiyu.order.feignclient.RemoteSystemService;
 import com.kaiyu.order.mapper.OrdersGoodsMapper;
 import com.kaiyu.order.mapper.OrdersMapper;
 import com.kaiyu.order.mapper.PayRecordMapper;
+import com.kaiyu.order.service.MqMessageService;
 import com.kaiyu.order.service.OrderService;
 import com.kaiyu.order.util.IdWorkerUtils;
 import com.kaiyu.order.util.NonceUtil;
@@ -32,6 +35,11 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageBuilder;
+import org.springframework.amqp.core.MessageDeliveryMode;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +88,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Resource
     private CloseableHttpClient wxPayClient;
+
+    @Autowired
+    MqMessageService mqMessageService;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
 
     @Autowired
@@ -335,6 +349,8 @@ public class OrderServiceImpl implements OrderService {
 
             payStatusDto.setTotal_amount(((Map)map.get("amount")).get("total").toString());
 
+            payStatusDto.setAttach(JSON.toJSONString(map.get("attach")));
+
             //2、成功才更新支付记录表和订单表状态
             saveVxPayStatus(payStatusDto);
         }
@@ -422,6 +438,7 @@ public class OrderServiceImpl implements OrderService {
             payStatusDto.setOut_trade_no(orderNo);
             payStatusDto.setTrade_status(plainTextMap.get("trade_state").toString());
             payStatusDto.setTrade_no(plainTextMap.get("transaction_id").toString());
+            payStatusDto.setAttach(JSON.toJSONString(plainTextMap.get("attach")));
 
             //更新支付记录表和订单表状态
             saveVxPayStatus(payStatusDto);
@@ -549,9 +566,42 @@ public class OrderServiceImpl implements OrderService {
                 KaiYuEducationException.cast("更新订单表失败");
             }
 
-            //发送mq执行相关支付成功业务 TODO
+            //发送mq执行相关支付成功业务
+            //保存消息 在发送
+//            Map attachMap = null;
+//            if(StringUtils.isNotBlank(payStatusDto.getAttach())){
+//                attachMap = JSON.parseObject(payStatusDto.getAttach(), Map.class);
+//            }
 
+            MqMessage mqMessage = mqMessageService.addMessage("payresult_notify", orders.getId().toString(),payStatusDto.getAttach() ,null );
+            notifyPayResult(mqMessage);
         }
+
+    }
+    public void notifyPayResult(MqMessage mqMessage) {
+        // 1. 将消息体转为Json
+        String jsonMsg = JSON.toJSONString(mqMessage);
+        // 2. 设消息的持久化方式为PERSISTENT，即消息会被持久化到磁盘上，确保即使在RabbitMQ服务器重启后也能够恢复消息。
+        Message msgObj = MessageBuilder.withBody(jsonMsg.getBytes()).setDeliveryMode(MessageDeliveryMode.PERSISTENT).build();
+        // 3. 封装CorrelationData，
+        CorrelationData correlationData = new CorrelationData(mqMessage.getId().toString());
+        correlationData.getFuture().addCallback(result -> {
+            if (result.isAck()) {
+                // 3.1 消息发送成功，删除消息表中的记录
+                log.debug("notifyPayResult 消息发送成功：{}", jsonMsg);
+                mqMessageService.completed(mqMessage.getId());
+            } else {
+                // 3.2 消息发送失败
+                log.error("notifyPayResult 消息发送失败，id：{}，原因：{}", mqMessage.getId(), result.getReason());
+
+            }
+        }, ex -> {
+            // 3.3 消息异常
+            log.error("notifyPayResult 消息发送异常，id：{}，原因：{}", mqMessage.getId(), ex.getMessage());
+
+        });
+        // 4. 发送消息
+        rabbitTemplate.convertAndSend(PayNotifyConfig.PAYNOTIFY_EXCHANGE_FANOUT, "", msgObj, correlationData);
     }
 
     private Map closeOrderByPayNo(String payNo) throws Exception {

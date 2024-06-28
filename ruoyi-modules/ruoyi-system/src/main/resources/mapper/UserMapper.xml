@@ -27,4 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select * from user where register_phone = #{register_phone}
     </select>
 
+    <select id="getUserInfoByOpenId" resultMap="getUserInfoMap">
+        select * from user where openid = #{openId}
+    </select>
 </mapper>
