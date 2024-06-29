@@ -2,6 +2,9 @@ package com.kaiyu.learning.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kaiyu.learning.domain.CourseTables;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @program: KaiYu-Cloud
@@ -11,4 +14,5 @@ import com.kaiyu.learning.domain.CourseTables;
  **/
 public interface CourseTablesMapper extends BaseMapper<CourseTables> {
 
+    int insertCourseTablesBatch(@Param("courseTablesList") List<CourseTables> courseTablesList);
 }

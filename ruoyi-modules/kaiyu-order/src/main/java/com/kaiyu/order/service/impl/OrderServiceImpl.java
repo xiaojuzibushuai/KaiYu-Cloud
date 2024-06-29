@@ -2,6 +2,7 @@ package com.kaiyu.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kaiyu.order.config.PayNotifyConfig;
 import com.kaiyu.order.config.WxPayConfig;
 import com.kaiyu.order.domain.MqMessage;
@@ -148,8 +149,8 @@ public class OrderServiceImpl implements OrderService {
         //插入订单明细表
         Long orderId = order.getId();
         String orderDetail = addOrderDto.getOrderDetail();
-        List<OrdersGoods> xcOrdersGoodsList = JSON.parseArray(orderDetail, OrdersGoods.class);
-        xcOrdersGoodsList.forEach(goods -> {
+        List<OrdersGoods> ordersGoodsList = JSON.parseArray(orderDetail, OrdersGoods.class);
+        ordersGoodsList.forEach(goods -> {
             goods.setOrderId(orderId);
             int insert1 = ordersGoodsMapper.insert(goods);
             if (insert1 <= 0) {
@@ -454,6 +455,16 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    @Override
+    public List<OrdersGoods> getUserOrderGoodsList(String orderId) {
+        Orders orders = ordersMapper.selectOne(new LambdaQueryWrapper<Orders>().eq(Orders::getId, orderId).eq(Orders::getStatus, "500002"));
+        if (orders == null) {
+            return null;
+        }
+        List<OrdersGoods> list = ordersGoodsMapper.selectList(new LambdaQueryWrapper<OrdersGoods>().eq(OrdersGoods::getOrderId, Long.parseLong(orderId)));
+        return list;
+    }
+
     public Map queryPayResultFromVxPay(String payNo) throws Exception {
 
         log.info("queryPayResultFromVxPay ===> {}", payNo);
@@ -573,7 +584,7 @@ public class OrderServiceImpl implements OrderService {
 //                attachMap = JSON.parseObject(payStatusDto.getAttach(), Map.class);
 //            }
 
-            MqMessage mqMessage = mqMessageService.addMessage("payresult_notify", orders.getId().toString(),payStatusDto.getAttach() ,null );
+            MqMessage mqMessage = mqMessageService.addMessage("payresult_notify", orders.getId().toString(),payStatusDto.getAttach() ,orders.getUserId() );
             notifyPayResult(mqMessage);
         }
 

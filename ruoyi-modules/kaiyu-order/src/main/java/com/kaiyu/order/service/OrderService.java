@@ -1,11 +1,13 @@
 package com.kaiyu.order.service;
 
+import com.kaiyu.order.domain.OrdersGoods;
 import com.kaiyu.order.domain.PayRecord;
 import com.kaiyu.order.domain.dto.AddOrderDto;
 import com.kaiyu.order.domain.dto.PayRecordDto;
 import com.kaiyu.order.domain.dto.PayStatusDto;
 
 import java.security.GeneralSecurityException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,4 +41,5 @@ public interface OrderService {
      */
     void processOrder(Map<String, Object> bodyMap) throws GeneralSecurityException;
 
+    List<OrdersGoods> getUserOrderGoodsList(String orderId);
 }

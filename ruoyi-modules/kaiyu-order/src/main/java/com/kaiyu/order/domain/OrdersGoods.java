@@ -53,4 +53,7 @@ public class OrdersGoods implements Serializable {
      */
     private String goodsDetail;
 
+
+    private Integer validDays;
+
 }

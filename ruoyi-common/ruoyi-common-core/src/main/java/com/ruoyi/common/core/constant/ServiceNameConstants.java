@@ -40,4 +40,7 @@ public class ServiceNameConstants
      * xiaojuzi
      */
     public static final String LEARNING_SERVICE = "kaiyu-learning";
+
+
+    public static final String ORDER_SERVICE = "kaiyu-order";
 }

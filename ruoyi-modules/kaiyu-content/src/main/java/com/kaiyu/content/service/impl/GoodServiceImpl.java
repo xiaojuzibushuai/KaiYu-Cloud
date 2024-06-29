@@ -113,4 +113,16 @@ public class GoodServiceImpl implements IGoodService {
 
     }
 
+    @Override
+    public Good getGoodsDetailById(Long goodId) {
+        Good good = goodMapper.selectById(goodId);
+        return good;
+    }
+
+    @Override
+    public List<Good> getGoodsListByIds(List<Long> goodIds) {
+        List<Good> goods = goodMapper.selectBatchIds(goodIds);
+        return goods;
+    }
+
 }

@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class RestResponse<T> {
     /**
-     * 相应编码 0为正常 -1为错误
+     * 相应编码 200为正常 -1为错误
      */
     private int code;
     /**

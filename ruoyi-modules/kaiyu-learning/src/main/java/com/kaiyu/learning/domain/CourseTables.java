@@ -61,6 +61,8 @@ public class CourseTables implements Serializable {
      */
     private LocalDateTime updateDate;
 
+    private Integer validDays;
+
     /**
      * 备注
      */

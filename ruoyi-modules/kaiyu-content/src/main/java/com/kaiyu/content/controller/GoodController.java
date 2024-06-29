@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * @program: KaiYu-Cloud
  * @description:
@@ -32,7 +34,7 @@ public class GoodController {
     @PostMapping("/back/getGoodsByConditions")
     @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
     @ApiOperation("查询商品列表多条件筛选")
-    public PageResult<Good> getGoodsByConditions(@RequestParam(value = "pageNo", defaultValue = "1") Long pageNo,
+    public PageResult<Good> getGoodsByConditions(@RequestParam(value = "pageNumber", defaultValue = "1") Long pageNo,
                                                           @RequestParam(value = "pageSize", defaultValue = "10") Long pageSize,
                                                           @RequestBody QueryAdminGoodDto queryGoodDto){
         PageParams pageParams = new PageParams();
@@ -72,6 +74,33 @@ public class GoodController {
         return goodService.deleteGoodsById(goodId);
     }
 
+    @PostMapping("/getGoodsDetailById")
+    @RequiresRoles(value = {"admin,common"}, logical = Logical.OR)
+    @ApiOperation("根据商品id获取商品信息")
+    public RestResponse getGoodsDetailById(@RequestParam(value = "goodId", required = true) Long goodId){
+        if (goodId < 0) {
+            return RestResponse.validfail("商品id不合法");
+        }
+        Good good = goodService.getGoodsDetailById(goodId);
+        if (good == null){
+            return RestResponse.validfail("商品不存在");
+        }
+        return RestResponse.success(good);
+    }
+
+    @PostMapping("/getGoodsListByIds")
+//    @RequiresRoles(value = {"admin,common"}, logical = Logical.OR)
+    @ApiOperation("根据商品id列表获取商品信息列表")
+    public RestResponse getGoodsListByIds(@RequestParam(value = "goodIds", required = true) List<Long> goodIds){
+        if (goodIds.isEmpty()) {
+            return RestResponse.validfail("商品id不合法");
+        }
+        List<Good> goods = goodService.getGoodsListByIds(goodIds);
+        if (goods.isEmpty()){
+            return RestResponse.validfail("商品不存在");
+        }
+        return RestResponse.success(goods);
+    }
 
 
 

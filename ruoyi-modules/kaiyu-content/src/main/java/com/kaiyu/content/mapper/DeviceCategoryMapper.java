@@ -14,5 +14,5 @@ import java.util.List;
  **/
 public interface DeviceCategoryMapper extends BaseMapper<DeviceCategory> {
 
-    int insertBatch(@Param("deviceCategoryList") List<DeviceCategory> deviceCategoryList);
+    int insertDeviceCategoryBatch(@Param("deviceCategoryList") List<DeviceCategory> deviceCategoryList);
 }

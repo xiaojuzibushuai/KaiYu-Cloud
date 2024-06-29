@@ -2,6 +2,7 @@ package com.kaiyu.order.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.google.gson.Gson;
+import com.kaiyu.order.domain.OrdersGoods;
 import com.kaiyu.order.domain.RestResponse;
 import com.kaiyu.order.domain.dto.AddOrderDto;
 import com.kaiyu.order.domain.dto.PayRecordDto;
@@ -29,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -103,6 +105,18 @@ public class OrderController {
     public RestResponse payresult(@PathVariable("payNo")String payNo) {
         PayStatusDto payStatusDto = orderService.queryVxPayResult(payNo);
         return RestResponse.success(payStatusDto);
+    }
+
+    //TODO 未加权限
+    @ApiOperation("查询用户订单商品列表")
+    //    @RequiresRoles(value = {"common"}, logical = Logical.OR)
+    @PostMapping("/getUserOrderGoodsList")
+    public RestResponse getUserOrderGoodsList(@RequestParam("orderId")String orderId) {
+        List<OrdersGoods> userOrderGoodsList = orderService.getUserOrderGoodsList(orderId);
+        if (userOrderGoodsList == null){
+            return RestResponse.validfail("订单不存在或未支付成功");
+        }
+        return RestResponse.success(userOrderGoodsList);
     }
 
 

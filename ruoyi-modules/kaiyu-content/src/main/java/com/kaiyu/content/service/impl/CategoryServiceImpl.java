@@ -145,7 +145,7 @@ public class CategoryServiceImpl implements ICategoryService {
 //                    deviceCategoryMapper.insert(deviceCategory);
                     deviceCategoryList.add(deviceCategory);
                 });
-                int i = deviceCategoryMapper.insertBatch(deviceCategoryList);
+                int i = deviceCategoryMapper.insertDeviceCategoryBatch(deviceCategoryList);
                 if (i > 0){
 
                     //删除缓存

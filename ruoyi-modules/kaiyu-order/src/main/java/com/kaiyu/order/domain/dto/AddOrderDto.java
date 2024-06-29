@@ -42,7 +42,7 @@ public class AddOrderDto {
 
     /**
      * 订单明细json，不可为空
-     * [{"goodsId":"","goodsType":"","goodsName":"","goodsPrice":"","goodsDetail":""},{...}]
+     * [{"goodsId":"","goodsType":"","goodsName":"","goodsPrice":"","goodsDetail":"","validDays":""},{...}]
      */
     private String orderDetail;
 

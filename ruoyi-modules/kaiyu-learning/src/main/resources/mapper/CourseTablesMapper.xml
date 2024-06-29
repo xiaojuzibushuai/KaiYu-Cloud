@@ -19,4 +19,14 @@
         id,  user_id, course_id , course_name, create_date, validtime_end, update_date, remarks
     </sql>
 
+
+    <insert id="insertCourseTablesBatch">
+        insert into course_tables(user_id,course_id,course_name,course_type,create_date,validtime_start,validtime_end,
+        valid_days,remarks) values
+        <foreach collection="courseTablesList" item="item" separator="," index="index">
+            (#{item.userId},#{item.courseId},#{item.courseName},#{item.courseType},#{item.createDate},#{item.validtimeStart},
+            #{item.validtimeEnd},#{item.validDays},#{item.remarks})
+        </foreach>
+    </insert>
+
 </mapper>

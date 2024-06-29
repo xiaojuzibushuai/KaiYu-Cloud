@@ -5,7 +5,7 @@
 <mapper namespace="com.kaiyu.content.mapper.DeviceCategoryMapper">
 
 
-    <insert id="insertBatch">
+    <insert id="insertDeviceCategoryBatch">
         insert into device_category(device_id,category_id) values
         <foreach collection="deviceCategoryList" item="item" separator="," index="index">
             (#{item.device_id},#{item.category_id})

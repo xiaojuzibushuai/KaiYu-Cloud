@@ -7,6 +7,8 @@ import com.kaiyu.content.domain.RestResponse;
 import com.kaiyu.content.domain.dto.EditGoodDto;
 import com.kaiyu.content.domain.dto.QueryAdminGoodDto;
 
+import java.util.List;
+
 /**
  * @program: KaiYu-Cloud
  * @description:
@@ -20,4 +22,8 @@ public interface IGoodService {
     RestResponse deleteGoodsById(Long goodId);
 
     RestResponse saveGoods(EditGoodDto goodDto);
+
+    Good getGoodsDetailById(Long goodId);
+
+    List<Good> getGoodsListByIds(List<Long> goodIds);
 }

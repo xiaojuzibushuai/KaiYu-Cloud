@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.FallbackFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @program: kai-yu-cloud
  * @description: 内容服务降级处理
@@ -44,6 +46,16 @@ public class RemoteContentFallbackFactory implements FallbackFactory<RemoteConte
 
             @Override
             public RestResponse<Object> getSceneList(String phone) {
+                return null;
+            }
+
+            @Override
+            public RestResponse getGoodsDetailById(Long goodId) {
+                return null;
+            }
+
+            @Override
+            public RestResponse getGoodsListByIds(List<Long> goodIds) {
                 return null;
             }
         };
