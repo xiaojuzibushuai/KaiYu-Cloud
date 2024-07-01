@@ -22,9 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -208,6 +206,20 @@ public class CategoryServiceImpl implements ICategoryService {
 
             return RestResponse.validfail("删除分类失败");
         }
+    }
+
+    @Override
+    public List getAllCategoryName() {
+        List<Category> categoryList = categoryMapper.selectList(new LambdaQueryWrapper<Category>()
+                .select(Category::getId, Category::getTitle).orderByAsc(Category::getId));
+
+        if (categoryList != null && !categoryList.isEmpty()) {
+            return categoryList.parallelStream().map(item -> {
+                return Map.of("id", item.getId(), "title", item.getTitle());
+            }).collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
 }

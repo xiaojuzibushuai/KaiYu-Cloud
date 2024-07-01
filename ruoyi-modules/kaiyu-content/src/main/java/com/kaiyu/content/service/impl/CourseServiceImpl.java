@@ -172,6 +172,21 @@ public class CourseServiceImpl implements ICourseService
         return null;
     }
 
+    @Override
+    public List getAllCourseName() {
+        LambdaQueryWrapper<Course> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(Course::getId, Course::getTitle).orderByAsc(Course::getId);
+        List<Course> courses = courseMapper.selectList(queryWrapper);
+
+        if (courses != null && !courses.isEmpty()){
+            return courses.parallelStream().map(item -> {
+                return Map.of("id", item.getId(), "title", item.getTitle());
+            }).collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
+    }
+
     /**
      * 私有方法 参数校验
      * xiaojuzi

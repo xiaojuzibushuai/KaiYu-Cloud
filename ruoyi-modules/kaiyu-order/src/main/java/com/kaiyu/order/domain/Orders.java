@@ -82,4 +82,7 @@ public class Orders implements Serializable {
      */
     private String outBusinessId;
 
+
+    private String orderBusinessIds;
+
 }

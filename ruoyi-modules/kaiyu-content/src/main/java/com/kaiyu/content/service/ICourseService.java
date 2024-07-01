@@ -28,4 +28,6 @@ public interface ICourseService
     PageResult<CourseCategoryVo> queryCourseByMultipleConditions(PageParams pageParams, QueryAdminCourseDto queryCourseDto);
 
     Map getCourseDeatil(Long courseId);
+
+    List getAllCourseName();
 }

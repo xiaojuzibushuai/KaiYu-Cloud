@@ -88,5 +88,14 @@ public class CategoryController{
         return categoryService.deleteBackCategory(categoryId);
     }
 
+    //查询所有课程分类id和name
+    @GetMapping("/getAllCategoryName")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    @ApiOperation("查询所有课程分类id和name")
+    public R getAllCategoryName(){
+
+        return R.ok(categoryService.getAllCategoryName());
+
+    }
 
 }

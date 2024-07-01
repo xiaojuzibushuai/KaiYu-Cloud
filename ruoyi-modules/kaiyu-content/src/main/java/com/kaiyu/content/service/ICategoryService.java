@@ -27,4 +27,5 @@ public interface ICategoryService {
     RestResponse deleteBackCategory(Long categoryId);
 
 
+    List getAllCategoryName();
 }

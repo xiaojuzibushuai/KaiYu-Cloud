@@ -105,4 +105,14 @@ public class CourseController {
     }
 
 
+    //查询所有课程id和name
+    @GetMapping("/getAllCourseName")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    @ApiOperation("查询所有课程id和name")
+    public R getAllCourseName(){
+
+        return R.ok(courseService.getAllCourseName());
+
+    }
+
 }

@@ -27,9 +27,10 @@ public class AddOrderDto {
     private Integer totalPrice;
 
     /**
+     * 先废除 约定
      * 订单类型
      */
-    private String orderType;
+//    private String orderType;
 
     /**
      * 订单名称
@@ -47,13 +48,17 @@ public class AddOrderDto {
     private String orderDetail;
 
     /**
+     * 先废除 约定
      * 外部系统业务id
      */
-    private String outBusinessId;
+//    private String outBusinessId;
+
+    private String orderBusinessIds;
 
     /**
      * 自定义数据说明
      * {"toRechargePhone":[18707281085,18707281085],"":"",}
      */
     private Map<String, Object> attach = new HashMap<>();
+
 }

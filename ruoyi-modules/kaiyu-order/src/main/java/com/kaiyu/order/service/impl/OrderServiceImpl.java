@@ -129,7 +129,7 @@ public class OrderServiceImpl implements OrderService {
     public Orders saveOrders(AddOrderDto addOrderDto) {
 
         //查找已存在但未支付的订单 幂等性判断
-        Orders order = getOrderByBusinessId(addOrderDto.getOutBusinessId(), addOrderDto.getOrderType());
+        Orders order = getOrderByBusinessId(addOrderDto.getOrderBusinessIds());
         if (order != null){
             return order;
         }
@@ -160,10 +160,10 @@ public class OrderServiceImpl implements OrderService {
         return order;
     }
 
-    public Orders getOrderByBusinessId(String businessId,String paymentType) {
+    public Orders getOrderByBusinessId(String businessIds) {
         return ordersMapper.selectOne(new LambdaQueryWrapper<Orders>()
-                .eq(Orders::getOutBusinessId, businessId)
-                .eq(Orders::getOrderType, paymentType)
+                .eq(Orders::getOrderBusinessIds, businessIds)
+//                .eq(Orders::getOrderType, paymentType)
                 .eq(Orders::getStatus, "500001")
         );
     }
