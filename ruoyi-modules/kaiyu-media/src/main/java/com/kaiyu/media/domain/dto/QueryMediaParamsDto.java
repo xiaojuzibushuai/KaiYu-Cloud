@@ -18,4 +18,7 @@ public class QueryMediaParamsDto {
     private String fileType;
     @ApiModelProperty("审核状态")
     private String auditStatus;
+
+    @ApiModelProperty("备注")
+    private String remark;
 }

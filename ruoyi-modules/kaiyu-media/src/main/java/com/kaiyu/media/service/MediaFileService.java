@@ -94,4 +94,6 @@ public interface MediaFileService {
     RestResponse addMediaProcess(String mediaId,String remark);
 
     RestResponse deleteMediaFilesUrl(String mediaId, String remark);
+
+    List<MediaFiles> getMediaImageFiles(QueryMediaParamsDto queryMediaParamsDto);
 }

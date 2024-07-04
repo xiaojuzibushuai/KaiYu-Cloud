@@ -81,11 +81,19 @@ public class MediaFilesController {
         return R.ok(mediaFiles);
     }
 
+    @ApiOperation("媒资列表-小程序查询所属分类图片文件")
+    @PostMapping("/getMediaImageFiles")
+    public R<List<MediaFiles>> getMediaImageFiles(@RequestBody QueryMediaParamsDto queryMediaParamsDto) {
+        List<MediaFiles> mediaFiles = mediaFileService.getMediaImageFiles(queryMediaParamsDto);
+        return R.ok(mediaFiles);
+    }
+
 
     @ApiOperation("上传小文件")
     @RequiresRoles(value = {"admin"}, logical = Logical.OR)
     @PostMapping(value = "/upload/coursefile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public R<UploadFileResultDto> upload(@RequestPart("filedata") MultipartFile upload,
+                                         @RequestParam(value = "remark", required = false) String remark,
                                          @ApiParam("上传的文件夹目录")@RequestParam(value = "folder", required = false) String folder,
                                          @ApiParam("对象名称") @RequestParam(value = "objectName", required = false) String objectName) {
 
@@ -95,7 +103,7 @@ public class MediaFilesController {
 
         uploadFileParamsDto.setFileType(FileTypeUtil.getFileTypeCode(contentType));
 
-        uploadFileParamsDto.setRemark("");
+        uploadFileParamsDto.setRemark(remark);
         uploadFileParamsDto.setFilename(upload.getOriginalFilename());
         uploadFileParamsDto.setContentType(contentType);
 

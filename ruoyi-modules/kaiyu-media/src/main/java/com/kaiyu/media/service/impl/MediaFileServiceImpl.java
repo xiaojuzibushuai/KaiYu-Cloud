@@ -81,7 +81,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(!StringUtils.isEmpty(queryMediaParamsDto.getFilename()), MediaFiles::getFilename, queryMediaParamsDto.getFilename());
         queryWrapper.eq(!StringUtils.isEmpty(queryMediaParamsDto.getFileType()), MediaFiles::getFileType, queryMediaParamsDto.getFileType());
-
+        queryWrapper.eq(!StringUtils.isEmpty(queryMediaParamsDto.getRemark()), MediaFiles::getRemark, queryMediaParamsDto.getRemark());
         //分页对象
         Page<MediaFiles> page = new Page<>(pageParams.getPageNo(), pageParams.getPageSize());
         // 查询数据内容获得结果
@@ -101,6 +101,7 @@ public class MediaFileServiceImpl implements MediaFileService {
         LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.like(!StringUtils.isEmpty(queryMediaParamsDto.getFilename()), MediaFiles::getFilename, queryMediaParamsDto.getFilename());
         queryWrapper.eq(MediaFiles::getFileType, "001002");
+        queryWrapper.eq(!StringUtils.isEmpty(queryMediaParamsDto.getRemark()), MediaFiles::getRemark, queryMediaParamsDto.getRemark());
         List<MediaFiles> mediaFiles = mediaFilesMapper.selectList(queryWrapper);
         return mediaFiles;
     }
@@ -717,6 +718,16 @@ public class MediaFileServiceImpl implements MediaFileService {
             return RestResponse.success("删除媒资文件url成功!");
         }
 
+    }
+
+    @Override
+    public List<MediaFiles> getMediaImageFiles(QueryMediaParamsDto queryMediaParamsDto) {
+        LambdaQueryWrapper<MediaFiles> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(!StringUtils.isEmpty(queryMediaParamsDto.getFilename()), MediaFiles::getFilename, queryMediaParamsDto.getFilename());
+        queryWrapper.eq(MediaFiles::getFileType, "001001");
+        queryWrapper.eq(!StringUtils.isEmpty(queryMediaParamsDto.getRemark()), MediaFiles::getRemark, queryMediaParamsDto.getRemark());
+        List<MediaFiles> mediaFiles = mediaFilesMapper.selectList(queryWrapper);
+        return mediaFiles;
     }
 
     /**
