@@ -215,7 +215,11 @@ public class CategoryServiceImpl implements ICategoryService {
 
         if (categoryList != null && !categoryList.isEmpty()) {
             return categoryList.parallelStream().map(item -> {
-                return Map.of("id", item.getId(), "title", item.getTitle());
+                return new HashMap<String, Object>(){{
+                    put("id", item.getId());
+                    put("title", item.getTitle());
+                }};
+//                return Map.of("id", item.getId(), "title", item.getTitle());
             }).collect(Collectors.toList());
         }
 
