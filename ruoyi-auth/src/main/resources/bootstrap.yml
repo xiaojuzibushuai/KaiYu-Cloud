@@ -24,10 +24,4 @@ spring:
         shared-configs:
           - application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
 
-#aliyun:
-#  sms:
-#    accessKeyId: LTAI5tQXBPYVNbuvvkmhdChh
-#    accessKeySecret: 6XpgesnInJvpQBWcEpKOpUXlWpQdF1
-#    smsSignName: 画小宇
-#    smsLoginTemplateCode: SMS_464040703
 

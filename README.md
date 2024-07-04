@@ -28,6 +28,7 @@ com.ruoyi
 │       └── kaiyu-content                             // 内容管理 [9206]
 │       └── kaiyu-media                               // 媒资管理 [9207]
 │       └── kaiyu-learning                            // 学习中心 [9208]
+│       └── kaiyu-order                               // 订单中心 [9209]
 │       └── ruoyi-system                              // 系统模块 [9201]
 │       └── ruoyi-gen                                 // 代码生成 [9202]
 │       └── ruoyi-job                                 // 定时任务 [9203]

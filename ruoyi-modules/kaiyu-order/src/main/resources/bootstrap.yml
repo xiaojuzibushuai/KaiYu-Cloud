@@ -34,34 +34,6 @@ spring:
           group: DEFAULT_GROUP
           refresh: true
 
-#配置在配置中心 此处删除 xiaojuzi
-#aliyun:
-#  oss:
-#    cdn_oss_url: http://cdn.course.v5ky.com
-#    accessKeyId: LTAI5tQEh2XoHCLNQV1zGUNt
-#    accessKeySecret: 905YkQEFw7kdiPLEv2clz6Xb7VrySG
-#    endpoint: http://oss-cn-wuhan-lr.aliyuncs.com
-#    files:
-#      bucketName: kaiyu-files-resource
-#    videofiles:
-#      bucketName: kaiyu-video-resource
-
-xxl:
-  job:
-    admin:
-      #调度中心集群部署存在多个地址则用逗号分隔
-#      addresses: http://121.89.199.156:32638/xxl-job-admin
-      addresses: http://172.16.0.230:8088/xxl-job-admin/
-    executor:
-      appname: order-process-service
-      address:
-      ip:
-      port: 9999
-      logpath: /data/applogs/xxl-job/jobhandler
-      logretentiondays: 30
-    accessToken: default_token
-pay:
-  qrcodeurl: http://127.0.0.1:8080/order/requestpay?payNo=%s
 
 
 #elegent:
