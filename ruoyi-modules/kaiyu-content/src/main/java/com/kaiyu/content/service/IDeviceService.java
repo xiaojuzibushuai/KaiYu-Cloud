@@ -24,4 +24,6 @@ public interface IDeviceService {
     Map getAllDeviceListBySceneid(String sceneid);
 
     List<ExternalDevice> getExternalDeviceListBySceneid(String sceneid);
+
+    List getAnswerFromKeyBoard(String sceneid,String startTime);
 }

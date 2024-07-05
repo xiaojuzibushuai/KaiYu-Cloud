@@ -52,7 +52,7 @@ public class DeviceController {
     @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @PostMapping("/getExternalDeviceListBySceneid")
     public RestResponse<Object> getExternalDeviceListBySceneid(@RequestParam("sceneid") String sceneid) {
-        List<ExternalDevice> devices =deviceService.getExternalDeviceListBySceneid(sceneid);
+        List<ExternalDevice> devices = deviceService.getExternalDeviceListBySceneid(sceneid);
         if (devices == null || devices.size() == 0) {
             return RestResponse.validfail("未找到设备id");
         }
@@ -61,11 +61,10 @@ public class DeviceController {
 
 
     @ApiOperation("前端播放视频选择场景返回-获取用户场景列表")
-    @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @PostMapping("/getSceneList")
     public RestResponse<Object> getSceneList(@RequestParam("phone") String phone) {
-        if (StringUtils.isNotEmpty(phone))
-        {
+        if (StringUtils.isNotEmpty(phone)) {
             List sceneList = deviceService.getSceneList(phone);
 
             if (sceneList == null || sceneList.size() == 0) {
@@ -78,7 +77,7 @@ public class DeviceController {
 
 
     @ApiOperation("前端播放视频选择场景返回-用户场景下所有设备列表")
-    @RequiresRoles(value = {"admin","common"}, logical = Logical.OR)
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
     @PostMapping("/getAllDeviceListBySceneid")
     public RestResponse<Object> getAllDeviceListBySceneid(@RequestParam("sceneid") String sceneid) {
         if (StringUtils.isNotEmpty(sceneid)) {
@@ -93,6 +92,20 @@ public class DeviceController {
     }
 
 
+    @PostMapping("/getAnswerFromKeyBoard")
+    @ApiOperation("web端获取场景下键盘群答题情况信息")
+    @RequiresRoles(value = {"admin", "common"}, logical = Logical.OR)
+    public RestResponse<Object> getAnswerFromKeyBoard(@RequestParam("sceneid") String sceneid,@RequestParam("startTime")String startTime) {
 
+        if (StringUtils.isEmpty(startTime) || StringUtils.isEmpty(sceneid)) {
+            return RestResponse.validfail("场景id或起始时间不能为空");
+        }
 
+        List result = deviceService.getAnswerFromKeyBoard(sceneid,startTime);
+
+        if (result == null || result.size() == 0) {
+            return RestResponse.validfail("未找到时间段设备答题情况");
+        }
+        return RestResponse.success(result);
+    }
 }

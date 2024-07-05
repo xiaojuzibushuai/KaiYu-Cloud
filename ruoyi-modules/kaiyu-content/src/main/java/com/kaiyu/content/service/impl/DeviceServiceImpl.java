@@ -15,6 +15,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,6 +43,9 @@ public class DeviceServiceImpl implements IDeviceService {
     private UserDeviceMapper userDeviceMapper;
     @Autowired
     private UserExternalDeviceMapper userExternalDeviceMapper;
+
+    @Autowired
+    private KeyBoardDataMapper keyBoardDataMapper;
 
     @Autowired
     private RemoteSystemService remoteSystemService;
@@ -227,6 +234,29 @@ public class DeviceServiceImpl implements IDeviceService {
 
         return result;
 
+    }
+
+    @Override
+    public List getAnswerFromKeyBoard(String sceneid,String startTime) {
+
+        List<ExternalDevice> externalDeviceList = getExternalDeviceListBySceneid(sceneid);
+
+        if (externalDeviceList != null && externalDeviceList.size() > 0) {
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.valueOf(startTime)), ZoneId.of("Asia/Shanghai"));
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//            LocalDateTime startDateTime = LocalDateTime.parse(startTime, formatter);
+            return externalDeviceList.stream().map(externalDevice -> {
+                // 查找键盘答题记录，起始时间大于等于startTime，按时间降序获取记录
+                return keyBoardDataMapper.selectList(new LambdaQueryWrapper<KeyBoardData>()
+                        .eq(KeyBoardData::getDeviceid, externalDevice.getDeviceid())
+                        .ge(KeyBoardData::getStatusUpdate, localDateTime)
+                        .orderByDesc(KeyBoardData::getStatusUpdate)
+                );
+
+            }).collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
     private List<Map<String, Object>> buildUserDeviceList(List<UserDevice> userDevices) {
